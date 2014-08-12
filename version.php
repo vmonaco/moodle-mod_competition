@@ -17,7 +17,7 @@
 /**
  * 
  *
- * @package    local_competition
+ * @package    mod_competition
  * @copyright  Vinnie Monaco
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->version   = 2014080600;
 $plugin->requires  = 2012112900; // See http://docs.moodle.org/dev/Moodle_Versions
-$plugin->cron      = 0; // No cron jobs for now
-$plugin->component = 'local_competition';
+$plugin->cron      = 10; // 10 minutes
+$plugin->component = 'mod_competition';
 $plugin->maturity  = MATURITY_BETA;
 $plugin->release   = '0.1.0';

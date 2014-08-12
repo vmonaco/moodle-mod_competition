@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/competition/db" VERSION="20140806"
-	COMMENT="XMLDB file for Moodle local/competition" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<XMLDB PATH="mod/competition/db" VERSION="20140806"
+	COMMENT="XMLDB file for Moodle mod/competition" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
 	<TABLES>
 	    
 	    <TABLE NAME="competition_competition"
             COMMENT="A competition can be linked to any single course">
             <FIELDS>
-                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-                    SEQUENCE="true" />
-                <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true"
-                    SEQUENCE="false" COMMENT="ID of the course" />
-                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"
-                    DEFAULT="0" SEQUENCE="false" COMMENT="Last modified time." />
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+                <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the course" />
+                <FIELD NAME="template" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Template used for scoring" />
+                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Last modified time." />
+                <FIELD NAME="datausage" TYPE="int" length="3" NOTNULL="true" SEQUENCE="false" COMMENT="Percent of data to be used for scoring" />
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id" />
@@ -21,22 +20,19 @@
                 
             </INDEXES>
         </TABLE>
-        
+            
 		<TABLE NAME="competition_submission"
             COMMENT="">
             <FIELDS>
-                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-                    SEQUENCE="true" />
-                <FIELD NAME="compid" TYPE="int" LENGTH="10" NOTNULL="true"
-                    SEQUENCE="false" COMMENT="ID of the competition" />
-                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"
-                    SEQUENCE="false" COMMENT="ID of the user" />
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+                <FIELD NAME="compid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the competition" />
+                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the user" />
                 <FIELD NAME="ipaddress" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="" />
-                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"
-                    DEFAULT="0" SEQUENCE="false" COMMENT="Last modified time." />
                 <FIELD NAME="submission" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="" />
-                <FIELD NAME="comments" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="" />
-                <FIELD NAME="score" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="" />
+                <FIELD NAME="comments" TYPE="255" NOTNULL="true" SEQUENCE="false" COMMENT="" />
+                <FIELD NAME="score" TYPE="255" NOTNULL="true" SEQUENCE="false" COMMENT="" />
+                <FIELD NAME="timesubmitted" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Submission time." />
+                <FIELD NAME="timescored" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Last scored time." />
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id" />
@@ -55,17 +51,32 @@
                 <FIELD NAME="compid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the competition" />
                 <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the user" />
                 <FIELD NAME="rank" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Rank of the user" />
+                <FIELD NAME="score" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Best score of the user" />
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id" />
                 <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" />
             </KEYS>
             <INDEXES>
-                <INDEX NAME="session-biometric" UNIQUE="true" FIELDS="session, biometric" />
-                <INDEX NAME="task" UNIQUE="false" FIELDS="task" />
+                <INDEX NAME="comp-user" UNIQUE="true" FIELDS="compid,userid" />
+                <INDEX NAME="comp-rank" UNIQUE="true" FIELDS="compid,rank" />
             </INDEXES>
         </TABLE>
 		
-		
+		<TABLE NAME="competition_scorer"
+            COMMENT="Scoring algorithms that score submissions (possibly based on a correct file)">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+                <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="" />
+                <FIELD NAME="description" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="" />
+                <FIELD NAME="script" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="" />
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+            </KEYS>
+            <INDEXES>
+            </INDEXES>
+        </TABLE>
+        
 	</TABLES>
 </XMLDB>
