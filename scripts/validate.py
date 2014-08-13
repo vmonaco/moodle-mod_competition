@@ -1,11 +1,7 @@
-#!/bin/env python
+#!/home/vinnie/anaconda3/envs/bas/bin/python
 
 import sys
 import pandas as pd
-
-import sys
-import pandas as pd
-import mysql.connector
 
 template = pd.read_csv(sys.argv[1])
 
@@ -16,7 +12,7 @@ except e:
     
 # Match the number of lines, including the header
 if len(template) != len(submission):
-    sys.exit('Submission should contain {} lines'.format(len(submission)+1))
+    sys.exit('Submission should contain {} lines including the header'.format(len(template)+1))
     
 if len(pd.merge(template, submission, on='sample', how='inner')) != len(template):
     sys.exit('Missing classifications for some samples')

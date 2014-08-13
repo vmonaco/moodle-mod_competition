@@ -5,3 +5,5 @@ CVS
 .project
 .buildpath
 .cache
+.pydevproject
+

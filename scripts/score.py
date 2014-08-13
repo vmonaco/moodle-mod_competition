@@ -1,8 +1,10 @@
-#!/bin/env python
+#!/home/vinnie/anaconda3/envs/bas/bin/python
 
 import sys
+import numpy as np
 import pandas as pd
 import mysql.connector
+from io import StringIO
 
 _SOCKET = sys.argv[1]
 _USER = sys.argv[2]
@@ -10,12 +12,14 @@ _PASSWD = sys.argv[3]
 _DB = sys.argv[4]
 _TABLE_PREFIX = sys.argv[5]
 _COMPETITION = sys.argv[6]
-_DATASET_USAGE = float(sys.argv[7])
+_DATASET_USAGE = float(int(sys.argv[7])/100)
 
-_SELECT_SCORE_TEMPLATE = "SELECT template FROM {}competition_competition WHERE `id`=%s".format(_TABLE_PREFIX)
-_SELECT_SUBMISSIONS = "SELECT id,submission FROM {}competition_submission WHERE `compid`=%s".format(_TABLE_PREFIX)
+_SELECT_SCORING_TEMPLATE = "SELECT scoringtemplate FROM {}competition WHERE `id`=%s".format(_TABLE_PREFIX)
+_SELECT_SUBMISSIONS = "SELECT id,userid,submission FROM {}competition_submission WHERE `compid`=%s".format(_TABLE_PREFIX)
 _SCORE_UPDATE = "UPDATE `{}competition_submission` SET `score`=%s WHERE `id`=%s".format(_TABLE_PREFIX)
-_LEADERBOARD_UPDATE = "UPDATE `{}competition_leaderboard` SET `rank`=%s, `score`=%s WHERE `compid`=%s and `userid`=%s".format(_TABLE_PREFIX)
+_LEADERBOARD_UPDATE = \
+"""INSERT INTO `{}competition_leaderboard` (`compid`,`userid`,`rank`,`score`) VALUES(%s, %s, %s, %s)
+ON DUPLICATE KEY UPDATE `rank`=%s, `score`=%s""".format(_TABLE_PREFIX)
 
 global conn
 conn = None
@@ -46,15 +50,15 @@ def select_submissions(compid):
     _close_db()
     
     for rowid,userid,submission in rows:
-        data = pd.read_csv(submission)
+        data = pd.read_csv(StringIO(submission))
         yield (rowid,userid,data)
 
 def scoring_template(compid):
     _open_db()
-    cur.execute(_SELECT_SUBMISSIONS, (compid,))
+    cur.execute(_SELECT_SCORING_TEMPLATE, (compid,))
     rows = cur.fetchall()
     _close_db()
-    df = pd.read_csv(rows[0])
+    df = pd.read_csv(StringIO(rows[0][0]))
     return df
 
 def ACC1(template, submission, usage):
@@ -71,7 +75,7 @@ def column_rank(df):
     r = (df.diff() != 0).cumsum()
     return r
 
-def rank(scores):
+def ranks(scores):
     r = scores.apply(column_rank).sum(axis=1)
     s = scores.median(axis=1)
     rs = pd.concat([r,s], axis=1)
@@ -89,7 +93,7 @@ def rank(scores):
 def main():
     template = scoring_template(_COMPETITION)
     scores = pd.concat({(id,userid): ACC1(template, s, _DATASET_USAGE) 
-                        for id,userid,s in select_submissions()}, names=['id','userid']).unstack(level=2) 
+                        for id,userid,s in select_submissions(_COMPETITION)}, names=['id','userid']).unstack(level=2) 
     
     # Update submission scores
     _open_db()
@@ -99,12 +103,12 @@ def main():
     
     # Get the top scores within each user and rerank the leaderboard
     scores = scores.groupby(level='userid').apply(lambda x: x.max())
-    leaderboard = rank(scores)
+    leaderboard = ranks(scores)
     
     # Update the leaderboard
     _open_db()
     for (userid,rank),s in leaderboard.iterrows():
-        cur.execute(_LEADERBOARD_UPDATE, (s.to_json(), id))
+        cur.execute(_LEADERBOARD_UPDATE, (_COMPETITION, userid, rank, s.to_json(), rank, s.to_json()))
     _close_db()
     
 main()

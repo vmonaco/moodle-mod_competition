@@ -79,9 +79,18 @@ class competition_leaderboard_report {
         $this -> leaderboard = $DB -> get_records('competition_leaderboard', $condition, $sort, $fields);
         $this -> scorenames = array();
         foreach ($this->leaderboard as $rank => $userrank) {
+            if (empty($userrank->score)) {
+               $userrank -> score = array();
+            } else {
+                
+            $userrank -> score = json_decode($userrank -> score, true);
+            }
+            
             $userrank -> score = json_decode($userrank->score, true);
-            $this -> scorenames = array_merge($this -> scorenames, array_keys($userrank -> score));
+            $this -> scorenames = $this -> scorenames + $userrank -> score;
         }
+        ksort($this->scorenames);
+        $this->scorenames = array_keys($this->scorenames);
         return $this -> leaderboard;
     }
 
@@ -183,7 +192,11 @@ class competition_leaderboard_report {
                 $scorecell -> attributes['class'] = 'score';
                 $scorecell -> header = true;
                 $scorecell -> scope = 'row';
-                $scorecell -> text .= $userrank -> score[$scorename];
+                if (array_key_exists($scorename, $userrank->score)) {
+                    $scorecell -> text .= $userrank -> score[$scorename];
+                } else {
+                    $scorecell -> text .= get_string('missingvalue', 'competition');
+                }
                 $row -> cells[] = $scorecell;
             }
 
@@ -259,20 +272,28 @@ class competition_submission_report {
         $fields = 'id,comments,score,timesubmitted,timescored';
         $condition = array('compid' => $this -> competition -> id, 'userid' => $this->user->id);
         $this -> numrows = $DB -> count_records('competition_submission', $condition);
-        $this -> submissions = $DB -> get_records('competition_submission', $condition, $sort, $fields);
-        $this -> scorenames = array();
-        foreach ($this->submissions as $id => $submission) {
+        $this -> submissions = $DB -> get_records('competition_submission' , $condition, $sort, $fields);
+            $this -> scorenames = array();
+            foreach ($this->submissions as $id => $submission) {
+            if (empty($submission->score)) {
+            $submission -> score = array();
+            } else {
+
             $submission -> score = json_decode($submission -> score, true);
-            $this -> scorenames = array_merge($this -> scorenames, array_keys($submission -> score));
-        }
-        return $this -> submissions;
-    }
+            }
+            $this -> scorenames = $this -> scorenames + $submission -> score;
+            }
+            ksort($this->scorenames);
+            $this->scorenames = array_keys($this->scorenames);
+            return $this -> submissions;
+            }
 
-    public function get_report_table() {
-        global $CFG, $DB, $OUTPUT, $PAGE;
+            public function get_report_table() {
+            global $CFG, $DB, $OUTPUT, $PAGE;
 
-        if (!$this -> submissions) {
-            echo $OUTPUT -> notification(get_string('nosubmissions', 'competition'));
+            if (!$this -> submissions) {
+            echo $OUTPUT -> notification(get_string(
+        'nosubmissions', 'competition'));
             return;
         }
 
@@ -310,7 +331,7 @@ class competition_submission_report {
         $commentsheader -> scope = 'col';
         $commentsheader -> header = true;
         $commentsheader -> id = 'commentsheader';
-        $commentsheader -> text = get_string('name');
+        $commentsheader -> text = get_string('comments', 'competition');
         $headerrow -> cells[] = $commentsheader;
         
         $timesubmittedheader = new html_table_cell();
@@ -318,7 +339,7 @@ class competition_submission_report {
         $timesubmittedheader -> scope = 'col';
         $timesubmittedheader -> header = true;
         $timesubmittedheader -> id = 'timesubmittedheader';
-        $timesubmittedheader -> text = get_string('submitted', 'competition');
+        $timesubmittedheader -> text = get_string('timesubmitted', 'competition');
         $headerrow -> cells[] = $timesubmittedheader;
         
         $timescoredheader = new html_table_cell();
@@ -326,7 +347,7 @@ class competition_submission_report {
         $timescoredheader -> scope = 'col';
         $timescoredheader -> header = true;
         $timescoredheader -> id = 'timescoredheader';
-        $timescoredheader -> text = get_string('scored', 'competition');
+        $timescoredheader -> text = get_string('timescored', 'competition');
         $headerrow -> cells[] = $timescoredheader;
 
         foreach ($this->scorenames as $scorename) {
@@ -390,7 +411,11 @@ class competition_submission_report {
                 $scorecell -> attributes['class'] = 'score';
                 $scorecell -> header = true;
                 $scorecell -> scope = 'row';
-                $scorecell -> text .= $submission -> score[$scorename];
+                if (array_key_exists($scorename, $submission->score)) {
+                    $scorecell -> text .= $submission -> score[$scorename];
+                } else {
+                    $scorecell -> text .= get_string('missingvalue', 'competition');
+                }
                 $row -> cells[] = $scorecell;
             }
 
@@ -403,6 +428,8 @@ class competition_submission_report {
             
             $rows[] = $row;
         }
+
+        // TODO: High, low, mean, median, std
 
         return $rows;
     }
@@ -428,4 +455,43 @@ class competition_submission_report {
         return $warnings;
     }
 
+}
+
+class competition_submission_form extends moodleform {
+    
+    public $competition;
+    
+    //Add elements to form
+    public function definition() {
+        global $CFG;
+ 
+        $mform = $this->_form; // Don't forget the underscore!
+        
+        $mform->addElement('header', 'general', get_string('newsubmission', 'competition'));
+        
+        $mform->addElement('textarea', 'comments', get_string("comments", "competition"), 'wrap="virtual" rows="5" cols="80"');
+        $mform->addRule('comments', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+         $mform->addRule('comments', null, 'required');
+         
+        $mform->addElement('file', 'submission', get_string('submissionfile', 'competition')); //, null, array('accepted_types' => '*'));
+        $mform->addRule('submission', null, 'required', null, 'client');
+        
+        $this->add_action_buttons(false, get_string('submit','competition'));
+    }
+    //Custom validation should be added here
+    function validation($data, $files) {
+        $errors = array();
+      // Allowed to make a submission 
+       
+        if (strpos($data['comments'], 'hello') !== false) {
+            $errors['comments'] = 'Comments contains hello';
+        }
+        
+        if ($submissionerror = validate_submission($this->competition->id, $files['submission'])) {
+            $errors['submission'] = $submissionerror;
+        }
+        
+        return $errors;
+    }
+    
 }

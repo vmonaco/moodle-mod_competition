@@ -48,6 +48,8 @@ $COMPETITION_INTERVAL = array (COMPETITION_INTERVAL_HOUR => get_string('hour', '
  function competition_cron() {
     global $DB;
     
+    // Rescore active competitions
+    rescore_competition($competition->id);
 }
 
 function competition_add_instance($competition, $mform) {

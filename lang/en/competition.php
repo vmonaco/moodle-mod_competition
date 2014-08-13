@@ -43,8 +43,14 @@ $string['emptyleaderboard'] = 'No participants in this competition';
 $string['rank'] = 'Rank';
 $string['nosubmissions'] = 'No submissions have been made';
 $string['submission'] = 'Submission';
-$string['submitted'] = 'Submitted';
-$string['scored'] = 'Scored';
+$string['submissionfile'] = 'Submission file';
+$string['timesubmitted'] = 'Time submitted';
+$string['submit'] = 'Submit';
+$string['timescored'] = 'Time scored';
+$string['missingvalue'] = '--';
+$string['comments'] = 'Comments';
+$string['newsubmission'] = 'Make a new submission';
+
 
 $string['addmorecompetitions'] = 'Add more competitions';
 $string['allowupdate'] = 'Allow competition to be updated';
@@ -77,6 +83,8 @@ $string['chooseaction'] = 'Choose an action ...';
 $string['limit'] = 'Limit';
 $string['limitno'] = 'Limit {no}';
 $string['limitanswers'] = 'Limit the number of responses allowed';
+$string['pluginadministration'] = 'Competition administration';
+$string['pluginname'] = 'Competition';
 
 
 
@@ -93,8 +101,6 @@ $string['option'] = 'Option';
 $string['optionno'] = 'Option {no}';
 $string['options'] = 'Options';
 $string['page-mod-competition-x'] = 'Any competition module page';
-$string['pluginadministration'] = 'competition administration';
-$string['pluginname'] = 'competition';
 $string['privacy'] = 'Privacy of results';
 $string['publish'] = 'Publish results';
 $string['publishafteranswer'] = 'Show results to students after they answer';
