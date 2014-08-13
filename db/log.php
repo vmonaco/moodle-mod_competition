@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,18 +16,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * 
+ * Definition of log events
  *
  * @package    mod_competition
+ * @category   log
  * @copyright  Vinnie Monaco
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$module->version   = 2014080600;
-$module->requires  = 2012112900; // See http://docs.moodle.org/dev/Moodle_Versions
-$module->cron      = 10; // 10 minutes
-$module->component = 'mod_competition';
-$module->maturity  = MATURITY_BETA;
-$module->release   = '0.1.0';
+$logs = array(
+    array('module'=>'competition', 'action'=>'view', 'mtable'=>'competition', 'field'=>'name'),
+    array('module'=>'competition', 'action'=>'update', 'mtable'=>'competition', 'field'=>'name'),
+    array('module'=>'competition', 'action'=>'add', 'mtable'=>'competition', 'field'=>'name'),
+    array('module'=>'competition', 'action'=>'report', 'mtable'=>'competition', 'field'=>'name'),
+    array('module'=>'competition', 'action'=>'submit', 'mtable'=>'competition', 'field'=>'name'),
+);

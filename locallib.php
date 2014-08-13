@@ -10,7 +10,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once ($CFG -> dirroot . '/mod/competition/constants.php');
 require_once ($CFG -> dirroot . '/mod/competition/lib.php');
 
 /**

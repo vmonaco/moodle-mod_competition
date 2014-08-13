@@ -15,7 +15,7 @@ require_once($CFG->dirroot . '/mod/competition/locallib.php');
 /**
  * Post-install script
  */
-function xmldb_mod_competition_install() {
+function xmldb_competition_install() {
 
     return true;
 }

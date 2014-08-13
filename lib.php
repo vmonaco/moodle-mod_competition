@@ -12,7 +12,6 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/mod/competition/locallib.php');
-require_once($CFG->dirroot . '/mod/competition/constants.php');
 
 define('COMPETITION_INTERVAL_HOUR', 60*60);
 define('COMPETITION_INTERVAL_DAY', 60*60*24);
@@ -29,7 +28,7 @@ global $COMPETITION_PUBLISH;
 $COMPETITION_PUBLISH = array (COMPETITION_PUBLISH_ANONYMOUS  => get_string('publishanonymous', 'competition'),
                                COMPETITION_PUBLISH_NAMES      => get_string('publishnames', 'competition'));
 
-/** @global array $COMPETITION_SHOWSCORE */
+/** @global array $COMPETITION_SHOWRESULTS */
 global $COMPETITION_SHOWSCORE;
 $COMPETITION_SHOWSCORE = array (COMPETITION_SHOWSCORE_NOT => get_string('showscorenot', 'competition'),
                                  COMPETITION_SHOWSCORE_ALWAYS => get_string('showscorealways', 'competition'));
@@ -46,7 +45,86 @@ $COMPETITION_INTERVAL = array (COMPETITION_INTERVAL_HOUR => get_string('hour', '
  * has elapsed.
  * 
  */
- function mod_competition_cron() {
+ function competition_cron() {
     global $DB;
     
+}
+
+function competition_add_instance($competition, $mform) {
+    global $DB;
+    
+    unset($competition->scoringtemplate);
+    $competition->scoringtemplate = $mform->get_file_content('scoringtemplate');
+    $competition->timemodified = time();
+
+    if (empty($competition->timerestrict)) {
+        $competition->timeopen = 0;
+        $competition->timeclose = 0;
+    }
+    $competition->id = $DB->insert_record("competition", $competition);
+    return $competition->id;
+}
+
+/**
+ * Given an object containing all the necessary data,
+ * (defined by the form in mod_form.php) this function
+ * will update an existing instance with new data.
+ *
+ * @global object
+ * @param object $competition
+ * @return bool
+ */
+function competition_update_instance($competition) {
+    global $DB;
+
+    $competition->id = $competition->instance;
+    $competition->timemodified = time();
+
+
+    if (empty($competition->timerestrict)) {
+        $competition->timeopen = 0;
+        $competition->timeclose = 0;
+    }
+
+    //update, delete or insert answers
+    foreach ($competition->option as $key => $value) {
+        $value = trim($value);
+        $option = new stdClass();
+        $option->text = $value;
+        $option->competitionid = $competition->id;
+        if (isset($competition->limit[$key])) {
+            $option->maxanswers = $competition->limit[$key];
+        }
+        $option->timemodified = time();
+        if (isset($competition->optionid[$key]) && !empty($competition->optionid[$key])){//existing competition record
+            $option->id=$competition->optionid[$key];
+            if (isset($value) && $value <> '') {
+                $DB->update_record("competition_options", $option);
+            } else { //empty old option - needs to be deleted.
+                $DB->delete_records("competition_options", array("id"=>$option->id));
+            }
+        } else {
+            if (isset($value) && $value <> '') {
+                $DB->insert_record("competition_options", $option);
+            }
+        }
+    }
+
+    return $DB->update_record('competition', $competition);
+}
+
+/**
+ * Gets a full competition record
+ *
+ * @global object
+ * @param int $competitionid
+ * @return object|bool The competition or false
+ */
+function competition_get_competition($competitionid) {
+    global $DB;
+
+    if ($competition = $DB->get_record("competition", array("id" => $competitionid))) {
+        return $competition;
+    }
+    return false;
 }

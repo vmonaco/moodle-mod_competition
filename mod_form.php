@@ -17,7 +17,7 @@ require_once ($CFG->dirroot.'/course/moodleform_mod.php');
 class mod_competition_mod_form extends moodleform_mod {
 
     function definition() {
-        global $CFG, $COMPETITION_INTERVAL, $DB;
+        global $CFG, $DB, $COMPETITION_INTERVAL, $COMPETITION_SHOWSCORE, $COMPETITION_PUBLISH;
 
         $mform =& $this->_form;
 
@@ -33,27 +33,32 @@ class mod_competition_mod_form extends moodleform_mod {
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
-        $this->add_intro_editor(true, get_string('chatintro', 'chat'));
-        $mform->addElement('file', 'template', get_string('template', 'competition'));
-        $mform->addRule('template', null, 'required', null, 'client');
+        $this->add_intro_editor(true, get_string('description', 'competition'));
+          
+        $mform->addElement('filepicker', 'scoringtemplate', get_string('scoringtemplate', 'competition'), null,
+                                array('accepted_types' => '*'));
+        $mform->addRule('scoringtemplate', null, 'required', null, 'client');
 
 //-------------------------------------------------------------------------------
         $mform->addElement('header', 'optionhdr', get_string('options', 'competition'));
         $mform->addElement('text', 'submissionrate', get_string('submissionrate', 'competition'));
+        $mform->setType('submissionrate', PARAM_INT);
+        $mform->setDefault('submissionrate', 1);
         $mform->addElement('select', 'submissioninterval', get_string('submissioninterval', 'competition'), $COMPETITION_INTERVAL);
         $mform->addElement('select', 'scoringinterval', get_string('scoringinterval', 'competition'), $COMPETITION_INTERVAL);
-        $mform->addElement('text', 'datausage', get_string('datausage', 'competition'));
-        
+        $mform->addElement('text', 'datausage', get_string('datausage', 'competition'), array('size'=>'3'));
+        $mform->setType('datausage', PARAM_INT);
+        $mform->setDefault('datausage', 50);
         $mform->addHelpButton('datausage', 'datausage', 'competition');
 
 //-------------------------------------------------------------------------------
         $mform->addElement('header', 'timerestricthdr', get_string('availability', 'competition'));
         $mform->addElement('checkbox', 'timerestrict', get_string('timerestrict', 'competition'));
 
-        $mform->addElement('date_time_selector', 'timeopen', get_string('choiceopen', 'competition'));
+        $mform->addElement('date_time_selector', 'timeopen', get_string('competitionopen', 'competition'));
         $mform->disabledIf('timeopen', 'timerestrict');
 
-        $mform->addElement('date_time_selector', 'timeclose', get_string('choiceclose', 'competition'));
+        $mform->addElement('date_time_selector', 'timeclose', get_string('competitionclose', 'competition'));
         $mform->disabledIf('timeclose', 'timerestrict');
         
 //-------------------------------------------------------------------------------
@@ -69,25 +74,19 @@ class mod_competition_mod_form extends moodleform_mod {
 
     function data_preprocessing(&$default_values){
         global $DB;
-        if (!empty($this->_instance) && ($options = $DB->get_records_menu('choice_options',array('choiceid'=>$this->_instance), 'id', 'id,text'))
-               && ($options2 = $DB->get_records_menu('choice_options', array('choiceid'=>$this->_instance), 'id', 'id,maxanswers')) ) {
-            $choiceids=array_keys($options);
-            $options=array_values($options);
-            $options2=array_values($options2);
-
-            foreach (array_keys($options) as $key){
-                $default_values['option['.$key.']'] = $options[$key];
-                $default_values['limit['.$key.']'] = $options2[$key];
-                $default_values['optionid['.$key.']'] = $choiceids[$key];
-            }
-
-        }
+        
         if (empty($default_values['timeopen'])) {
             $default_values['timerestrict'] = 0;
         } else {
             $default_values['timerestrict'] = 1;
         }
 
+        if ($this->current->instance) {
+            // editing existing instance - copy existing files into draft area
+            $draftitemid = file_get_submitted_draft_itemid('mediafile');
+            file_prepare_draft_area($draftitemid, $this->context->id, 'mod_lesson', 'mediafile', 0, array('subdirs'=>0, 'maxbytes' => $this->course->maxbytes, 'maxfiles' => 1));
+            $default_values['mediafile'] = $draftitemid;
+        }
     }
 
     function get_data() {
@@ -107,7 +106,7 @@ class mod_competition_mod_form extends moodleform_mod {
     function add_completion_rules() {
         $mform =& $this->_form;
 
-        $mform->addElement('checkbox', 'completionsubmit', '', get_string('completionsubmit', 'choice'));
+        $mform->addElement('checkbox', 'completionsubmit', '', get_string('completionsubmit', 'competition'));
         return array('completionsubmit');
     }
 

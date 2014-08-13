@@ -1,6 +1,6 @@
 <?php
 /**
- *
+ * View and manage user submissions for all competitions in the current course
  *
  * @package    mod_competition
  * @copyright  Vinnie Monaco
