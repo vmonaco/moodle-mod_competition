@@ -41,6 +41,10 @@ $string['description'] = 'Description';
 $string['timerestrict'] = 'Restrict submissions';
 $string['emptyleaderboard'] = 'No participants in this competition';
 $string['rank'] = 'Rank';
+$string['nosubmissions'] = 'No submissions have been made';
+$string['submission'] = 'Submission';
+$string['submitted'] = 'Submitted';
+$string['scored'] = 'Scored';
 
 $string['addmorecompetitions'] = 'Add more competitions';
 $string['allowupdate'] = 'Allow competition to be updated';

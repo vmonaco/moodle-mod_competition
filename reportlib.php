@@ -32,7 +32,7 @@ require_once ($CFG -> dirroot . '/mod/competition/locallib.php');
 /*
  * 
  */
-class competition_leaderboard_overview {
+class competition_leaderboard_report {
 
     /**
      * @var array $users
@@ -215,7 +215,7 @@ class competition_leaderboard_overview {
 /*
  * 
  */
-class competition_submission_overview {
+class competition_submission_report {
 
     /**
      * @var array $users
@@ -256,24 +256,23 @@ class competition_submission_overview {
         global $DB;
 
         $sort = 'id';
-        $fields = 'comments,score,timesubmitted,timescored';
+        $fields = 'id,comments,score,timesubmitted,timescored';
         $condition = array('compid' => $this -> competition -> id, 'userid' => $this->user->id);
         $this -> numrows = $DB -> count_records('competition_submission', $condition);
         $this -> submissions = $DB -> get_records('competition_submission', $condition, $sort, $fields);
         $this -> scorenames = array();
         foreach ($this->submissions as $id => $submission) {
-            $user -> score = json_decode($submission -> score);
-            $this -> scorenames = array_combine($this -> scorenames, array_keys($submission -> score));
+            $submission -> score = json_decode($submission -> score, true);
+            $this -> scorenames = array_merge($this -> scorenames, array_keys($submission -> score));
         }
-
         return $this -> submissions;
     }
 
     public function get_report_table() {
         global $CFG, $DB, $OUTPUT, $PAGE;
 
-        if (!$this -> users) {
-            echo $OUTPUT -> notification(get_string('emptyleaderboard', 'competition'));
+        if (!$this -> submissions) {
+            echo $OUTPUT -> notification(get_string('nosubmissions', 'competition'));
             return;
         }
 
@@ -298,21 +297,37 @@ class competition_submission_overview {
         $headerrow = new html_table_row();
         $headerrow -> attributes['class'] = 'heading';
 
-        $rankheader = new html_table_cell();
-        $rankheader -> attributes['class'] = 'header';
-        $rankheader -> scope = 'col';
-        $rankheader -> header = true;
-        $rankheader -> id = 'rankheader';
-        $rankheader -> text = get_string('rank', 'local_competition');
-        $headerrow -> cells[] = $rankheader;
+        $idheader = new html_table_cell();
+        $idheader -> attributes['class'] = 'header';
+        $idheader -> scope = 'col';
+        $idheader -> header = true;
+        $idheader -> id = 'idheader';
+        $idheader -> text = get_string('submission', 'competition');
+        $headerrow -> cells[] = $idheader;
 
-        $userheader = new html_table_cell();
-        $userheader -> attributes['class'] = 'header';
-        $userheader -> scope = 'col';
-        $userheader -> header = true;
-        $userheader -> id = 'userheader';
-        $userheader -> text = get_string('name');
-        $headerrow -> cells[] = $userheader;
+        $commentsheader = new html_table_cell();
+        $commentsheader -> attributes['class'] = 'header';
+        $commentsheader -> scope = 'col';
+        $commentsheader -> header = true;
+        $commentsheader -> id = 'commentsheader';
+        $commentsheader -> text = get_string('name');
+        $headerrow -> cells[] = $commentsheader;
+        
+        $timesubmittedheader = new html_table_cell();
+        $timesubmittedheader -> attributes['class'] = 'header';
+        $timesubmittedheader -> scope = 'col';
+        $timesubmittedheader -> header = true;
+        $timesubmittedheader -> id = 'timesubmittedheader';
+        $timesubmittedheader -> text = get_string('submitted', 'competition');
+        $headerrow -> cells[] = $timesubmittedheader;
+        
+        $timescoredheader = new html_table_cell();
+        $timescoredheader -> attributes['class'] = 'header';
+        $timescoredheader -> scope = 'col';
+        $timescoredheader -> header = true;
+        $timescoredheader -> id = 'timescoredheader';
+        $timescoredheader -> text = get_string('scored', 'competition');
+        $headerrow -> cells[] = $timescoredheader;
 
         foreach ($this->scorenames as $scorename) {
             $scoreheader = new html_table_cell();
@@ -320,56 +335,72 @@ class competition_submission_overview {
             $scoreheader -> scope = 'col';
             $scoreheader -> header = true;
             $scoreheader -> id = 'scoreheader';
-            $scoreheader -> text = $score;
+            $scoreheader -> text = $scorename;
             $headerrow -> cells[] = $scoreheader;
         }
 
+        
+        $downloadheader = new html_table_cell();
+        $downloadheader -> attributes['class'] = 'header';
+        $downloadheader -> scope = 'col';
+        $downloadheader -> header = true;
+        $downloadheader -> id = 'downloadheader';
+        $downloadheader -> text = get_string('name');
+        $headerrow -> cells[] = $downloadheader;
+        
         $rows[] = $headerrow;
         $rowclasses = array('even', 'odd');
-
-        foreach ($this->users as $rank => $userrank) {
-            $rankcell = new html_table_cell();
-            $rankcell -> attributes['class'] = 'rank';
-            $rankcell -> header = true;
-            $rankcell -> scope = 'row';
-            $rankcell -> text .= $rank;
-            $row -> cells[] = $rankcell;
-
-            $user = $DB -> get_record('user', array('id' => $userrank -> userid));
+        
+        foreach ($this->submissions as $id => $submission) {
 
             $row = new html_table_row();
-            $row -> id = 'fixed_biodata_' . $biodataid;
             $row -> attributes['class'] = 'r' . $this -> rowcount++ . ' ' . $rowclasses[$this -> rowcount % 2];
+            $row -> id = 'fixed_submission_' . $this -> rowcount;
 
-            $usercell = new html_table_cell();
-            $usercell -> attributes['class'] = 'user';
+            $idcell = new html_table_cell();
+            $idcell -> attributes['class'] = 'id';
+            $idcell -> header = true;
+            $idcell -> scope = 'row';
+            $idcell -> text .= $this -> rowcount;
+            $row -> cells[] = $idcell;
 
-            $usercell -> header = true;
-            $usercell -> scope = 'row';
-
-            $usercell -> text .= html_writer::link(new moodle_url('/user/view.php', array('id' => $user -> id)), fullname($user));
-
-            if (!empty($user -> suspendedenrolment)) {
-                $usercell -> attributes['class'] .= ' usersuspended';
-
-                // May be lots of suspended users so only get the string once
-                if (empty($suspendedstring)) {
-                    $suspendedstring = get_string('userenrolmentsuspended', 'grades');
-                }
-                $usercell -> text .= html_writer::empty_tag('img', array('src' => $OUTPUT -> pix_url('i/enrolmentsuspended'), 'title' => $suspendedstring, 'alt' => $suspendedstring, 'class' => 'usersuspendedicon'));
-            }
-
-            $row -> cells[] = $usercell;
+            $commentscell = new html_table_cell();
+            $commentscell -> attributes['class'] = 'comments';
+            $commentscell -> header = true;
+            $commentscell -> scope = 'row';
+            $commentscell -> text .= $submission->comments;
+            $row -> cells[] = $commentscell;
+            
+            $timesubmittedcell = new html_table_cell();
+            $timesubmittedcell -> attributes['class'] = 'timesubmitted';
+            $timesubmittedcell -> header = true;
+            $timesubmittedcell -> scope = 'row';
+            $timesubmittedcell -> text .= $submission->timesubmitted;
+            $row -> cells[] = $timesubmittedcell;
+            
+            $timescoredcell = new html_table_cell();
+            $timescoredcell -> attributes['class'] = 'timescored';
+            $timescoredcell -> header = true;
+            $timescoredcell -> scope = 'row';
+            $timescoredcell -> text .= $submission->timescored;
+            $row -> cells[] = $timescoredcell;
 
             foreach ($this->scorenames as $scorename) {
                 $scorecell = new html_table_cell();
                 $scorecell -> attributes['class'] = 'score';
                 $scorecell -> header = true;
                 $scorecell -> scope = 'row';
-                $scorecell -> text .= $userrank -> score[$scorename];
+                $scorecell -> text .= $submission -> score[$scorename];
                 $row -> cells[] = $scorecell;
             }
 
+            $downloadcell = new html_table_cell();
+            $downloadcell -> attributes['class'] = 'download';
+            $downloadcell -> header = true;
+            $downloadcell -> scope = 'row';
+            $downloadcell -> text .= 'Download link';
+            $row -> cells[] = $downloadcell;
+            
             $rows[] = $row;
         }
 

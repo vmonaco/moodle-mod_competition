@@ -37,7 +37,7 @@ $PAGE->set_heading($competition->name);
 
 echo $OUTPUT -> header();
  
-$leaderboard = new competition_leaderboard_overview($competition);
+$leaderboard = new competition_leaderboard_report($competition);
 $leaderboard -> load_users();
 $numdata = $leaderboard -> get_numrows();
 
