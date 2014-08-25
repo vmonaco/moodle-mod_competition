@@ -43,13 +43,13 @@ echo $OUTPUT -> header();
 //Instantiate simplehtml_form
 $mform = new competition_submission_form($url -> out());
 $mform -> competition = $competition;
+$mform-> userid = $USER->id;
 
 if ($mform -> is_cancelled()) {
     //Handle form cancel operation, if cancel button is present on form
 } else if ($fromform = $mform -> get_data()) {
-    //In this case you process validated data. $mform->get_data() returns data posted in form.
     // Make a submission
-    
+    create_submission($competition->id, $USER->id, $mform, $fromform);
 } else {
     // this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
     // or on the first display of the form.

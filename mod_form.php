@@ -34,10 +34,9 @@ class mod_competition_mod_form extends moodleform_mod {
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
         $this->add_intro_editor(true, get_string('description', 'competition'));
-          
-        $mform->addElement('filepicker', 'scoringtemplate', get_string('scoringtemplate', 'competition'), null,
-                                array('accepted_types' => '*'));
-        $mform->addRule('scoringtemplate', null, 'required', null, 'client');
+        
+        $mform->addElement('file', 'scoringtemplate', get_string('scoringtemplate', 'competition')); //, null, array('accepted_types' => '*'));
+        $mform->addRule('scoringtemplate', null, 'required', null, 'client');  
 
 //-------------------------------------------------------------------------------
         $mform->addElement('header', 'optionhdr', get_string('options', 'competition'));
@@ -80,13 +79,7 @@ class mod_competition_mod_form extends moodleform_mod {
         } else {
             $default_values['timerestrict'] = 1;
         }
-
-        if ($this->current->instance) {
-            // editing existing instance - copy existing files into draft area
-            $draftitemid = file_get_submitted_draft_itemid('mediafile');
-            file_prepare_draft_area($draftitemid, $this->context->id, 'mod_lesson', 'mediafile', 0, array('subdirs'=>0, 'maxbytes' => $this->course->maxbytes, 'maxfiles' => 1));
-            $default_values['mediafile'] = $draftitemid;
-        }
+        
     }
 
     function get_data() {

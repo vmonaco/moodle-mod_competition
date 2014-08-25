@@ -8,14 +8,23 @@
             COMMENT="">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+                <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
                 <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="" />
                 <FIELD NAME="intro" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="" />
+                <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
                 <FIELD NAME="datausage" TYPE="int" LENGTH="3" NOTNULL="true" SEQUENCE="false" COMMENT="Percent of data to be used for scoring" />
                 <FIELD NAME="submissionrate" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="" />
                 <FIELD NAME="submissioninterval" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="" />
                 <FIELD NAME="scoringinterval" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="" />
                 <FIELD NAME="scoringtemplate" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Template used for scoring" />
                 <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Last modified time." />
+
+                <FIELD NAME="publish" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+                <FIELD NAME="showresults" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+                <FIELD NAME="display" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+                <FIELD NAME="allowupdate" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+                <FIELD NAME="timeopen" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+                <FIELD NAME="timeclose" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id" />

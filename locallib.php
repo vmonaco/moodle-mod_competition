@@ -30,6 +30,7 @@ function rescore_competition($compid) {
                      );
     
     $command = escapeshellcmd($CFG -> dirroot . '/mod/competition/scripts/score.py ' . implode(' ', $params));
+    
     exec($command);
 }
 
@@ -58,7 +59,7 @@ function validate_submission($compid, $submissionfile) {
     }
 }
 
-function allowable_submissions($competition, $userid) {
+function check_submission_history($competition, $userid) {
     // The user must be enrolled in the course that hosts the competition
     
     // Check if the number of submissions has reached the submission rate
@@ -69,5 +70,20 @@ function allowable_submissions($competition, $userid) {
     // Return the number of allowable submissions in this period and the time
     //  to next submission (0 if submissions are currently allowed)
     
+}
+
+function create_submission($compid, $userid, $mform, $fromform) {
+    global $DB;
     
+    $submission = new stdClass();
+    $submission->compid = $compid;
+    $submission->userid = $userid;
+    $submission->ipaddress = ip2long($_SERVER['REMOTE_ADDR']);
+    $submission->submission = $mform->get_file_content('submission');
+    $submission->comments = $fromform->comments;
+    $submission->score = '';
+    $submission->timesubmitted = time();
+    
+    $submission->id = $DB->insert_record("competition_submission", $submission);
+    return $submission;
 }

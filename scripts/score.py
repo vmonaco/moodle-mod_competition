@@ -4,6 +4,7 @@ import sys
 import numpy as np
 import pandas as pd
 import mysql.connector
+from time import time
 from io import StringIO
 
 _SOCKET = sys.argv[1]
@@ -16,7 +17,7 @@ _DATASET_USAGE = float(int(sys.argv[7])/100)
 
 _SELECT_SCORING_TEMPLATE = "SELECT scoringtemplate FROM {}competition WHERE `id`=%s".format(_TABLE_PREFIX)
 _SELECT_SUBMISSIONS = "SELECT id,userid,submission FROM {}competition_submission WHERE `compid`=%s".format(_TABLE_PREFIX)
-_SCORE_UPDATE = "UPDATE `{}competition_submission` SET `score`=%s WHERE `id`=%s".format(_TABLE_PREFIX)
+_SCORE_UPDATE = "UPDATE `{}competition_submission` SET `score`=%s, `timescored`=%s WHERE `id`=%s".format(_TABLE_PREFIX)
 _LEADERBOARD_UPDATE = \
 """INSERT INTO `{}competition_leaderboard` (`compid`,`userid`,`rank`,`score`) VALUES(%s, %s, %s, %s)
 ON DUPLICATE KEY UPDATE `rank`=%s, `score`=%s""".format(_TABLE_PREFIX)
@@ -98,7 +99,7 @@ def main():
     # Update submission scores
     _open_db()
     for (id,userid),s in scores.iterrows():
-        cur.execute(_SCORE_UPDATE, (s.to_json(), id))
+        cur.execute(_SCORE_UPDATE, (s.to_json(double_precision=4), int(time()), id))
     _close_db()
     
     # Get the top scores within each user and rerank the leaderboard
@@ -108,7 +109,7 @@ def main():
     # Update the leaderboard
     _open_db()
     for (userid,rank),s in leaderboard.iterrows():
-        cur.execute(_LEADERBOARD_UPDATE, (_COMPETITION, userid, rank, s.to_json(), rank, s.to_json()))
+        cur.execute(_LEADERBOARD_UPDATE, (_COMPETITION, userid, rank, s.to_json(double_precision=4), rank, s.to_json(double_precision=4)))
     _close_db()
     
 main()

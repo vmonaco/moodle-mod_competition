@@ -88,30 +88,6 @@ function competition_update_instance($competition) {
         $competition->timeclose = 0;
     }
 
-    //update, delete or insert answers
-    foreach ($competition->option as $key => $value) {
-        $value = trim($value);
-        $option = new stdClass();
-        $option->text = $value;
-        $option->competitionid = $competition->id;
-        if (isset($competition->limit[$key])) {
-            $option->maxanswers = $competition->limit[$key];
-        }
-        $option->timemodified = time();
-        if (isset($competition->optionid[$key]) && !empty($competition->optionid[$key])){//existing competition record
-            $option->id=$competition->optionid[$key];
-            if (isset($value) && $value <> '') {
-                $DB->update_record("competition_options", $option);
-            } else { //empty old option - needs to be deleted.
-                $DB->delete_records("competition_options", array("id"=>$option->id));
-            }
-        } else {
-            if (isset($value) && $value <> '') {
-                $DB->insert_record("competition_options", $option);
-            }
-        }
-    }
-
     return $DB->update_record('competition', $competition);
 }
 

@@ -83,10 +83,9 @@ class competition_leaderboard_report {
                $userrank -> score = array();
             } else {
                 
-            $userrank -> score = json_decode($userrank -> score, true);
+                $userrank -> score = json_decode($userrank -> score, true);
             }
             
-            $userrank -> score = json_decode($userrank->score, true);
             $this -> scorenames = $this -> scorenames + $userrank -> score;
         }
         ksort($this->scorenames);
@@ -482,11 +481,13 @@ class competition_submission_form extends moodleform {
     function validation($data, $files) {
         $errors = array();
       // Allowed to make a submission 
-       
-        if (strpos($data['comments'], 'hello') !== false) {
-            $errors['comments'] = 'Comments contains hello';
+         
+       $submissionhisterror = check_submission_history($this->competition, $this->userid);
+        if ($submissionhisterror) {
+            $errors['submission'] = $submissionhisterror;
+           return $errors; # No need to continue
         }
-        
+    
         if ($submissionerror = validate_submission($this->competition->id, $files['submission'])) {
             $errors['submission'] = $submissionerror;
         }
