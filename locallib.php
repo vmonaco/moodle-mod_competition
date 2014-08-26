@@ -12,26 +12,29 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once ($CFG -> dirroot . '/mod/competition/lib.php');
 
+global $COMPETITION_VALIDATE_DIR;
+global $COMPETITION_SCORE_DIR;
+$COMPETITION_VALIDATE_DIR = $CFG -> dirroot . '/mod/competition/validate';
+$COMPETITION_SCORE_DIR = $CFG -> dirroot . '/mod/competition/score';
 
 /**
  * Rescore and rerank all submissions
  */
-function rescore_competition($compid) {
+function rescore_competition($competition) {
     global $DB, $CFG;
-    $datausage = $DB->get_field('competition', 'datausage', array('id'=>$compid));
     
     $params = array($CFG->dboptions['dbsocket'],
                      $CFG->dbuser,
                      $CFG->dbpass,
                      $CFG->dbname,
                      $CFG->prefix,
-                     $compid,
-                     $datausage
+                     $competition->id,
+                     $competition->datausage
                      );
     
-    $command = escapeshellcmd($CFG -> dirroot . '/mod/competition/scripts/score.py ' . implode(' ', $params));
-    
+    $command = escapeshellcmd($CFG -> dirroot . '/mod/competition/scorers' . $competition->scorescript . implode(' ', $params));
     exec($command);
+    $DB->set_field('competition', 'timescored', time(), array('id'=>$competition->id));
 }
 
 function validate_submission($compid, $submissionfile) {
@@ -86,12 +89,13 @@ function remaining_submissions($competition, $userid) {
                             ORDER BY timesubmitted
                             LIMIT 1", 
                             array($competition->id, $userid, time() - $competition->submissioninterval));
-        $timeleft = $competition->submissioninterval - (time() - $earliestsub[array_keys($earliestsub)[0]]->timesubmitted);
+        $keys = array_keys($earliestsub);
+        $timeleft = $competition->submissioninterval - (time() - $earliestsub[$keys[0]]->timesubmitted);
     }
 
     // Return the number of allowable submissions in this period and the time
     //  to next submission (0 if submissions are currently allowed)
-    return array($submissionsleft, $timeleft);
+    return array($submissionsleft, timestamp2units($timeleft, array('hours','minutes','seconds')));
 }
 
 function create_submission($compid, $userid, $mform, $fromform) {
@@ -110,21 +114,139 @@ function create_submission($compid, $userid, $mform, $fromform) {
     return $submission;
 }
 
-function competition_get_js_module() {
-    global $PAGE;
+function timestamp2units($timestamp, $units) {
+    global $COMPETITION_TIME_UNITS;
+    $timeunits = array();
+    
+    foreach ($units as $idx => $unit) {
+        $timeunits[$unit] = (int)($timestamp/$COMPETITION_TIME_UNITS[$unit]);
+        $timestamp -= $COMPETITION_TIME_UNITS[$unit]*$timeunits[$unit];
+    }
+    return $timeunits;
+}
 
-    return array(
-        'name' => 'mod_quiz',
-        'fullpath' => '/mod/competition/module.js',
-        'requires' => array('base', 'dom', 'event-delegate', 'event-key',
-                'core_question_engine', 'moodle-core-formchangechecker'),
-        'strings' => array(
-            array('cancel', 'moodle'),
-            array('flagged', 'question'),
-            array('functiondisabledbysecuremode', 'quiz'),
-            array('startattempt', 'quiz'),
-            array('timesup', 'quiz'),
-            array('changesmadereallygoaway', 'moodle'),
-        ),
-    );
+function timer_sort_units_to_show($idstring){
+    $idarray = explode(',', $idstring);
+    //array of array positions eg 1,2,3 tha where selected on the settings menu
+
+    $units = block_enrolmenttimer_get_units();
+    $unitKeys = array_keys($units);
+    $output = array();
+
+    foreach($idarray as $key => $value){
+        // will equal $output['seconds'] = 1
+        $unitKey = $unitKeys[$value];
+        $output[$unitKey] = $units[$unitKey];
+    }
+
+    return $output;
+}
+
+function get_score_scripts() {
+    global $COMPETITION_SCORE_DIR;
+    return array_diff(scandir($COMPETITION_SCORE_DIR), array('..', '.'));
+}
+
+function get_validate_scripts() {
+    global $COMPETITION_VALIDATE_DIR;
+    return array_diff(scandir($COMPETITION_VALIDATE_DIR), array('..', '.'));
+}
+
+
+function create_timer($timeLeft, $expirytext) {
+    global $COURSE, $USER, $DB, $CFG;
+
+    $output = '<div class=mod_competition_timer>';
+        $activecountdown = 1;
+        $output .= '<div';
+            if($activecountdown == 1){
+                $output .= ' class="active"';
+            }
+        $output .= '>';
+
+        if(!$timeLeft){
+            $displayNothingNoDateSet = get_config('enrolmenttimer', 'displayNothingNoDateSet');
+            if($displayNothingNoDateSet == 1){
+                $output = '';
+                return $output;
+            }else{
+                $output .= '<p class="noDateSet">'.get_string('noDateSet','competition').'</p></div></div>';
+                return $output;
+            }
+        }else{
+            //$output .= 'You have ';
+            $counter = 1;
+            $text = '';
+            $force2digits = 1; //get_config('enrolmenttimer', 'forceTwoDigits');
+            $displayLabels = 1; //get_config('enrolmenttimer', 'displayUnitLabels');
+            $displayTextCounter = 0; //get_config('enrolmenttimer', 'displayTextCounter');
+
+            $output .= '<hr>';
+            $output .= '<div class="visual-counter">';
+            $output .= '<div class="timer-wrapper"';
+            if($force2digits == 1){
+                $output .= ' data-id="force2" ';
+            }
+            $output .= '>';
+            foreach($timeLeft as $unit => $count){
+                $stringCount = (string)$count;
+                $countLength = strlen($stringCount);
+
+                if($displayLabels == 1){
+                    $output .= '<div class="numberTypeWrapper">';
+                }
+
+                $output .= '<div class="timerNum" data-id="'.$unit.'">';
+                
+                if($countLength == 1 && $force2digits == 1){
+                    $output .= '<span class="timerNumChar" data-id="0">0</span>';
+                    $output .= '<span class="timerNumChar" data-id="1">'.$stringCount.'</span>';
+                }else{
+                    for ($i=0; $i < $countLength; $i++) { 
+                        $output .= '<span class="timerNumChar" data-id="'.$i.'">'.$stringCount[$i].'</span>';
+                    }
+                }
+                
+                $output .= '</div>';
+                
+                if($displayLabels == 1){
+                    $output .= '<p>'.$unit.'</p></div>';
+                }               
+
+                if($counter != count($timeLeft)){
+                    $output .= '<div class="seperator">:</div>';
+                }
+
+                $text .= '<d class="'.$unit.'">'.$count.'</span> ';
+                if($count > 1){
+                    $text .= $unit.' ';
+                }else{
+                    $text .= rtrim($unit, "s").' ';
+                }
+
+                $counter++;
+
+            }
+            $output .= '</div>';
+            $output .= '</div>';
+            $output .= '<hr>';
+            $output .= '<div class="text-wrapper">';
+            $output .= '<p class="text-desc"';
+            if($displayTextCounter == 0){
+                $output .= ' style="display: none;"';
+            }
+            $output .= '>'.$text.'</p>';
+            $output .= '<p class="sub-text">'.$expirytext.'</p>';
+            $output .= '</div>';
+        }   
+
+        $output .= '</div>';
+        $output .= '</div>';
+
+        return $output;
+}
+
+function competition_editors_options(stdclass $context) {
+        return array('subdirs' => 1, 'maxbytes' => 0, 'maxfiles' => -1,
+                     'changeformat' => 1, 'context' => $context, 'noclean' => 1, 'trusttext' => 0);
 }

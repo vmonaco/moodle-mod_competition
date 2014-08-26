@@ -33,10 +33,20 @@ class mod_competition_mod_form extends moodleform_mod {
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
-        $this->add_intro_editor(true, get_string('description', 'competition'));
+        $this->add_intro_editor(true, get_string('intro', 'competition'));
+       
+        $mform->addElement('editor', 'descriptioneditor', get_string('description', 'competition'), array('rows' => 10), array('maxfiles' => EDITOR_UNLIMITED_FILES,
+            'noclean' => true, 'context' => $this->context, 'subdirs' => true));
+        $mform->setType('descriptioneditor', PARAM_RAW);
+        $mform->addRule('descriptioneditor', get_string('required'), 'required', null, 'client');
         
-        $mform->addElement('file', 'scoringtemplate', get_string('scoringtemplate', 'competition')); //, null, array('accepted_types' => '*'));
-        $mform->addRule('scoringtemplate', null, 'required', null, 'client');  
+        $mform->addElement('editor', 'dataseteditor', get_string('dataset', 'competition'), array('rows' => 10), array('maxfiles' => EDITOR_UNLIMITED_FILES,
+            'noclean' => true, 'context' => $this->context, 'subdirs' => true));
+        $mform->setType('dataseteditor', PARAM_RAW);
+        $mform->addRule('dataseteditor', get_string('required'), 'required', null, 'client');
+       
+        // $mform->addElement('file', 'scoringtemplate', get_string('scoringtemplate', 'competition')); //, null, array('accepted_types' => '*'));
+        // $mform->addRule('scoringtemplate', null, 'required', null, 'client');  
 
 //-------------------------------------------------------------------------------
         $mform->addElement('header', 'optionhdr', get_string('options', 'competition'));
@@ -50,6 +60,9 @@ class mod_competition_mod_form extends moodleform_mod {
         $mform->setType('datausage', PARAM_INT);
         $mform->setDefault('datausage', 50);
         $mform->addHelpButton('datausage', 'datausage', 'competition');
+        
+         $mform->addElement('select', 'scorescript', get_string('scorescript', 'competition'), get_score_scripts());
+         $mform->addElement('select', 'validatescript', get_string('validatescript', 'competition'), get_validate_scripts());
 
 //-------------------------------------------------------------------------------
         $mform->addElement('header', 'timerestricthdr', get_string('availability', 'competition'));
@@ -72,15 +85,42 @@ class mod_competition_mod_form extends moodleform_mod {
         $this->add_action_buttons();
     }
 
-    function data_preprocessing(&$default_values){
+    function data_preprocessing(&$data){
         global $DB;
         
-        if (empty($default_values['timeopen'])) {
-            $default_values['timerestrict'] = 0;
+        if (empty($data['timeopen'])) {
+            $data['timerestrict'] = 0;
         } else {
-            $default_values['timerestrict'] = 1;
+            $data['timerestrict'] = 1;
         }
-        
+         if ($this->current->instance) {
+            // editing an existing competition - let us prepare the added editor elements (intro done automatically)
+            $draftitemid = file_get_submitted_draft_itemid('dataset');
+            $data['dataseteditor']['text'] = file_prepare_draft_area($draftitemid, $this->context->id,
+                                'mod_competition', 'dataset', 0,
+                                competition_editors_options($this->context),
+                                $data['dataset']);
+            $data['dataseteditor']['format'] = editors_get_preferred_format(); //$data['datasetformat'];
+            $data['dataseteditor']['itemid'] = $draftitemid;
+            
+            $draftitemid = file_get_submitted_draft_itemid('description');
+            $data['descriptioneditor']['text'] = file_prepare_draft_area($draftitemid, $this->context->id,
+                                'mod_competition', 'description', 0,
+                                competition_editors_options($this->context),
+                                $data['description']);
+            $data['descriptioneditor']['format'] = editors_get_preferred_format(); //$data['descriptionformat'];
+            $data['descriptioneditor']['itemid'] = $draftitemid;
+
+        } else {
+            // adding a new competition instance
+            $draftitemid = file_get_submitted_draft_itemid('dataset');
+            file_prepare_draft_area($draftitemid, null, 'mod_competition', 'dataset', 0);    // no context yet, itemid not used
+            $data['dataseteditor'] = array('text' => '', 'format' => editors_get_preferred_format(), 'itemid' => $draftitemid);
+            
+            $draftitemid = file_get_submitted_draft_itemid('description');
+            file_prepare_draft_area($draftitemid, null, 'mod_competition', 'description', 0);    // no context yet, itemid not used
+            $data['descriptioneditor'] = array('text' => '', 'format' => editors_get_preferred_format(), 'itemid' => $draftitemid);
+        }
     }
 
     function get_data() {
@@ -94,6 +134,19 @@ class mod_competition_mod_form extends moodleform_mod {
                 $data->completionsubmit = 0;
             }
         }
+        
+        if ($draftitemid = $data->descriptioneditor['itemid']) {
+            $data->description = file_save_draft_area_files($draftitemid, $this->context->id, 'mod_competition', 'description',
+                    0, competition_editors_options($this->context), $data->descriptioneditor['text']);
+            $data->descriptionformat = $data->descriptioneditor['format'];
+        }
+        
+        if ($draftitemid = $data->dataseteditor['itemid']) {
+            $data->dataset = file_save_draft_area_files($draftitemid, $this->context->id, 'mod_competition', 'dataset',
+                    0, competition_editors_options($this->context), $data->dataseteditor['text']);
+            $data->datasetformat = $data->dataseteditor['format'];
+        }
+
         return $data;
     }
 

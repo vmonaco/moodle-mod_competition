@@ -26,6 +26,15 @@ $string['datausage_help'] = 'Data usage help...';
 $string['hour'] = 'Hour';
 $string['day'] = 'Day';
 $string['week'] = 'Week';
+
+$string['hours'] = 'hours';
+$string['days'] = 'days';
+$string['weeks'] = 'weeks';
+$string['years'] = 'years';
+$string['months'] = 'months';
+$string['minutes'] = 'minutes';
+$string['seconds'] = 'seconds';
+
 $string['showscore'] = "Show scores";
 $string['showscorenot'] = "Don't publish scores";
 $string['showscorealways'] = "Always publish scores";
@@ -53,6 +62,10 @@ $string['newsubmission'] = 'Make a new submission';
 $string['nosubmissionsremaining'] = 'No submissions remaining this period.';
 $string['leaderboard'] = 'Leaderboard';
 $string['mysubmissions'] = 'My submissions';
+$string['scorescript'] = 'Scoring script';
+$string['validatescript'] = 'Validation script';
+$string['intro'] = 'Introduction';
+$string['dataset'] = 'Dataset';
 
 $string['addmorecompetitions'] = 'Add more competitions';
 $string['allowupdate'] = 'Allow competition to be updated';

@@ -3,3 +3,25 @@
     clear: left;
     text-align: center;
 }
+
+.mod_competition_timer .timerNum{display: inline-block; line-height: 30px;}
+.mod_competition_timer .noDateSet{text-align: center;}
+.mod_competition_timer .numberTypeWrapper{display: inline-block;}
+.mod_competition_timer .numberTypeWrapper .timerNum{display: block;}
+.mod_competition_timer .numberTypeWrapper p{font-size: 0.65em; text-align: center; margin: 0;}
+.mod_competition_timer .timerNumChar{
+    background: url([[pix:mod_competition_timer|background]]) repeat-x;
+    color: #000;
+    margin: 2px;
+    padding: 3px;
+    font-size: 1.3em;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+.mod_competition_timer .seperator{color: #000; display: inline-block; font-weight: bold; vertical-align: top; line-height: 30px;}
+.mod_competition_timer .timer-wrapper{margin: 1em auto 0.6em auto; display: table;}
+.mod_competition_timer p{text-align: center; margin:0 0 10px 0;}
+.mod_competition_timer .text-wrapper{margin-top: 10px;}
+.mod_competition_timer .text-wrapper .text-desc{font-size: 0.65em;}
+.mod_competition_timer .text-wrapper .sub-text{font-size: 0.8em;}

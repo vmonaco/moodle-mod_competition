@@ -36,7 +36,24 @@ $PAGE->set_title(format_string($competition->name));
 $PAGE->set_heading($competition->name);
 
 echo $OUTPUT -> header();
- 
+
+$PAGE->requires->js('/mod/competition/scripts/jquery-1.10.2.min.js');
+$PAGE->requires->js('/mod/competition/scripts/timer.js');
+$now = time();
+if ($competition->timeopen > 0 && ($competition->timeopen - $now) > 0) {
+    // Competition hasn't started yet
+    echo create_timer(timestamp2units($competition->timeopen - $now, array('days','hours','minutes','seconds')), 'Competition begins');
+} else if ($competition->timeclose > 0 && ($competition->timeclose - $now) > 0) {
+    // Competition hasn't ended yet
+    echo create_timer(timestamp2units($competition->timeclose - $now, array('days','hours','minutes','seconds')), 'Competition ends');
+} else if ($competition->timeclose > 0 && ($now - $competition->timeclose) > 0) {
+    // Competition is over
+    echo 'Competition is over';
+} else {
+    // Competition has no time limits
+    echo 'No limits';
+}
+     
 $leaderboard = new competition_leaderboard_report($competition);
 $leaderboard -> load_users();
 $numdata = $leaderboard -> get_numrows();

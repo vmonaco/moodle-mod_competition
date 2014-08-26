@@ -14,7 +14,7 @@ require_once ('reportlib.php');
 $id = required_param('id', PARAM_INT);
 // Course Module ID
 
-$url = new moodle_url('/mod/competition/profile.php', array('id' => $id));
+$url = new moodle_url('/mod/competition/submit.php', array('id' => $id));
 $PAGE -> set_url($url);
 
 require_login();
@@ -40,8 +40,14 @@ echo $OUTPUT -> header();
 
 // Show a timer if the user must wait to make a submission
 list($submissionsleft, $timeleft)  = remaining_submissions($competition, $USER->id);
-$options = array($timeleft, true);
-echo $PAGE->requires->js_init_call('M.mod_quiz.timer.init', $options, false, competition_get_js_module());
+
+if ($submissionsleft) {
+    echo "<div>You have $submissionsleft submissions left</div>";
+} else {
+    $PAGE->requires->js('/mod/competition/scripts/jquery-1.10.2.min.js');
+    $PAGE->requires->js('/mod/competition/scripts/timer.js');
+    echo create_timer($timeleft, 'Until you can make another submission');
+}
 
 // Only show the submission form if a user can currently make submissions
 $mform = new competition_submission_form($url -> out());
