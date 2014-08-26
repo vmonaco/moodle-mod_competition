@@ -39,26 +39,26 @@ $PAGE -> set_heading($competition -> name);
 echo $OUTPUT -> header();
 
 // Show a timer if the user must wait to make a submission
-list($submissionsleft, $timeleft)  = remaining_submissions($competition, $USER->id);
+list($submissionsleft, $timeleft) = remaining_submissions($competition, $USER -> id);
 
 if ($submissionsleft) {
     echo "<div>You have $submissionsleft submissions left</div>";
 } else {
-    $PAGE->requires->js('/mod/competition/scripts/jquery-1.10.2.min.js');
-    $PAGE->requires->js('/mod/competition/scripts/timer.js');
+    $PAGE -> requires -> js('/mod/competition/scripts/jquery-1.10.2.min.js');
+    $PAGE -> requires -> js('/mod/competition/scripts/timer.js');
     echo create_timer($timeleft, 'Until you can make another submission');
 }
 
 // Only show the submission form if a user can currently make submissions
 $mform = new competition_submission_form($url -> out());
 $mform -> competition = $competition;
-$mform-> userid = $USER->id;
+$mform -> userid = $USER -> id;
 
 if ($mform -> is_cancelled()) {
     //Handle form cancel operation, if cancel button is present on form
 } else if ($fromform = $mform -> get_data()) {
     // Make a submission
-    create_submission($competition->id, $USER->id, $mform, $fromform);
+    create_submission($competition -> id, $USER -> id, $mform, $fromform);
 } else {
     // this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
     // or on the first display of the form.

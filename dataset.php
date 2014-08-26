@@ -9,7 +9,7 @@
 
 require_once ("../../config.php");
 require_once ("lib.php");
-require_once("$CFG->libdir/filelib.php");
+require_once ("$CFG->libdir/filelib.php");
 
 $id = required_param('id', PARAM_INT);
 // Course Module ID
@@ -33,20 +33,19 @@ if (!$competition = competition_get_competition($cm -> instance)) {
     print_error('invalidcoursemodule');
 }
 
-$PAGE->set_title(format_string($competition->name));
-$PAGE->set_heading($competition->name);
+$PAGE -> set_title(format_string($competition -> name));
+$PAGE -> set_heading($competition -> name);
 
 echo $OUTPUT -> header();
 
 global $CFG;
 
-$context = context_module::instance($cm->id);
+$context = context_module::instance($cm -> id);
 
 $options = array('noclean' => true, 'para' => false, 'filter' => true, 'context' => $context, 'overflowdiv' => true);
 
-$dataset = file_rewrite_pluginfile_urls($competition->dataset, 'pluginfile.php', $PAGE->context->id,
-            'mod_competition', 'dataset', 0, competition_editors_options($PAGE->context));
-            
-echo $OUTPUT->box(trim(format_text($dataset, $competition->introformat, $options, null)));
+$dataset = file_rewrite_pluginfile_urls($competition -> dataset, 'pluginfile.php', $PAGE -> context -> id, 'mod_competition', 'dataset', 0, competition_editors_options($PAGE -> context));
+
+echo $OUTPUT -> box(trim(format_text($dataset, $competition -> introformat, $options, null)));
 
 echo $OUTPUT -> footer();
