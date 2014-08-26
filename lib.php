@@ -25,13 +25,17 @@ define('COMPETITION_SHOWSCORE_ALWAYS', '1');
 
 /** @global array $COMPETITION_PUBLISH */
 global $COMPETITION_PUBLISH;
-$COMPETITION_PUBLISH = array (COMPETITION_PUBLISH_ANONYMOUS  => get_string('publishanonymous', 'competition'),
-                               COMPETITION_PUBLISH_NAMES      => get_string('publishnames', 'competition'));
+$COMPETITION_PUBLISH = array (
+                               COMPETITION_PUBLISH_NAMES      => get_string('publishnames', 'competition'),
+                               COMPETITION_PUBLISH_ANONYMOUS  => get_string('publishanonymous', 'competition'),
+                               );
 
 /** @global array $COMPETITION_SHOWRESULTS */
 global $COMPETITION_SHOWSCORE;
-$COMPETITION_SHOWSCORE = array (COMPETITION_SHOWSCORE_NOT => get_string('showscorenot', 'competition'),
-                                 COMPETITION_SHOWSCORE_ALWAYS => get_string('showscorealways', 'competition'));
+$COMPETITION_SHOWSCORE = array (
+                                 COMPETITION_SHOWSCORE_ALWAYS => get_string('showscorealways', 'competition'),
+                                 COMPETITION_SHOWSCORE_NOT => get_string('showscorenot', 'competition'),
+                                 );
 
 
 /** @global array $COMPETITION_INTERVAL */
@@ -105,4 +109,23 @@ function competition_get_competition($competitionid) {
         return $competition;
     }
     return false;
+}
+
+function competition_extend_navigation($module, $course, $competition, $cm) {
+    global $PAGE;
+    // $previewnode = $PAGE->navigation->add(get_string('preview'), new moodle_url('/a/link/if/you/want/one.php'), navigation_node::TYPE_CONTAINER);
+    // $thingnode = $previewnode->add(get_string('name of thing'), new moodle_url('/a/link/if/you/want/one.php'));
+    // $thingnode->make_active();
+    
+    $coursenode = $PAGE->navigation->find($course->id, navigation_node::TYPE_COURSE);
+    
+    // Remove all other nodes
+    foreach ($coursenode->get_children_key_list() as $idx => $key) {
+        $coursenode->get($key)->hide();
+    }
+    $leaderboard = $coursenode->add(get_string('leaderboard', 'competition'), new moodle_url('view.php', array('id' => $module->key)));
+    $leaderboard->make_active();
+    $leaderboard = $coursenode->add(get_string('mysubmissions', 'competition'), new moodle_url('profile.php', array('id' => $module->key)));
+    $coursenode->force_open();
+    
 }

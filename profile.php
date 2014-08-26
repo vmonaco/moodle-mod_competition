@@ -38,9 +38,12 @@ $PAGE -> set_heading($competition -> name);
 
 echo $OUTPUT -> header();
 
-// Only show the submission form if a user can currently make submissions
+// Show a timer if the user must wait to make a submission
+list($submissionsleft, $timeleft)  = remaining_submissions($competition, $USER->id);
+$options = array($timeleft, true);
+echo $PAGE->requires->js_init_call('M.mod_quiz.timer.init', $options, false, competition_get_js_module());
 
-//Instantiate simplehtml_form
+// Only show the submission form if a user can currently make submissions
 $mform = new competition_submission_form($url -> out());
 $mform -> competition = $competition;
 $mform-> userid = $USER->id;

@@ -59,17 +59,39 @@ function validate_submission($compid, $submissionfile) {
     }
 }
 
-function check_submission_history($competition, $userid) {
-    // The user must be enrolled in the course that hosts the competition
+function submission_rate($competition, $userid) {
     
-    // Check if the number of submissions has reached the submission rate
+}
+
+function remaining_submissions($competition, $userid) {
+    global $DB;
+    // The user must be enrolled in the course that hosts the competition
     
     // Number of submissions made in the current period
     // count submissions since (current time - submission interval)
+    $recentsubs = $DB->count_records_sql(
+                            "SELECT COUNT(*) FROM {competition_submission}
+                            WHERE compid=? AND userid=? AND timesubmitted>=? 
+                            ORDER BY timesubmitted
+                            LIMIT 1", 
+                            array($competition->id, $userid, time() - $competition->submissioninterval));
+    $submissionsleft = $competition->submissionrate - $recentsubs;
     
+    // Time remaining to next submission
+    $timeleft = 0;
+    if ($recentsubs >= $competition->submissionrate) {
+        $earliestsub = $DB->get_records_sql( 
+                            "SELECT * FROM {competition_submission}
+                            WHERE compid=? AND userid=? AND timesubmitted>=? 
+                            ORDER BY timesubmitted
+                            LIMIT 1", 
+                            array($competition->id, $userid, time() - $competition->submissioninterval));
+        $timeleft = $competition->submissioninterval - (time() - $earliestsub[array_keys($earliestsub)[0]]->timesubmitted);
+    }
+
     // Return the number of allowable submissions in this period and the time
     //  to next submission (0 if submissions are currently allowed)
-    
+    return array($submissionsleft, $timeleft);
 }
 
 function create_submission($compid, $userid, $mform, $fromform) {
@@ -86,4 +108,23 @@ function create_submission($compid, $userid, $mform, $fromform) {
     
     $submission->id = $DB->insert_record("competition_submission", $submission);
     return $submission;
+}
+
+function competition_get_js_module() {
+    global $PAGE;
+
+    return array(
+        'name' => 'mod_quiz',
+        'fullpath' => '/mod/competition/module.js',
+        'requires' => array('base', 'dom', 'event-delegate', 'event-key',
+                'core_question_engine', 'moodle-core-formchangechecker'),
+        'strings' => array(
+            array('cancel', 'moodle'),
+            array('flagged', 'question'),
+            array('functiondisabledbysecuremode', 'quiz'),
+            array('startattempt', 'quiz'),
+            array('timesup', 'quiz'),
+            array('changesmadereallygoaway', 'moodle'),
+        ),
+    );
 }

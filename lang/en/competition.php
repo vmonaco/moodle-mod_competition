@@ -50,7 +50,9 @@ $string['timescored'] = 'Time scored';
 $string['missingvalue'] = '--';
 $string['comments'] = 'Comments';
 $string['newsubmission'] = 'Make a new submission';
-
+$string['nosubmissionsremaining'] = 'No submissions remaining this period.';
+$string['leaderboard'] = 'Leaderboard';
+$string['mysubmissions'] = 'My submissions';
 
 $string['addmorecompetitions'] = 'Add more competitions';
 $string['allowupdate'] = 'Allow competition to be updated';

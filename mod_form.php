@@ -44,6 +44,7 @@ class mod_competition_mod_form extends moodleform_mod {
         $mform->setType('submissionrate', PARAM_INT);
         $mform->setDefault('submissionrate', 1);
         $mform->addElement('select', 'submissioninterval', get_string('submissioninterval', 'competition'), $COMPETITION_INTERVAL);
+        $mform->setDefault('submissioninterval', COMPETITION_INTERVAL_DAY);
         $mform->addElement('select', 'scoringinterval', get_string('scoringinterval', 'competition'), $COMPETITION_INTERVAL);
         $mform->addElement('text', 'datausage', get_string('datausage', 'competition'), array('size'=>'3'));
         $mform->setType('datausage', PARAM_INT);

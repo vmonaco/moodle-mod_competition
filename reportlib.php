@@ -482,9 +482,9 @@ class competition_submission_form extends moodleform {
         $errors = array();
       // Allowed to make a submission 
          
-       $submissionhisterror = check_submission_history($this->competition, $this->userid);
-        if ($submissionhisterror) {
-            $errors['submission'] = $submissionhisterror;
+       list($submissionsleft, $timeleft)  = remaining_submissions($this->competition, $this->userid);
+        if ($submissionsleft <= 0) {
+            $errors['submission'] = get_string('nosubmissionsremaining', 'competition');
            return $errors; # No need to continue
         }
     
