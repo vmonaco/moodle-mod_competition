@@ -64,17 +64,32 @@ function competition_cron() {
 
 function competition_add_instance($competition, $mform) {
     global $DB;
+    
+    $competition->id = $DB->insert_record('competition', $competition);
 
-    unset($competition -> scoringtemplate);
-    // $competition->scoringtemplate = $mform->get_file_content('scoringtemplate');
+    // we need to use context now, so we need to make sure all needed info is already in db
+    $cmid = $competition->coursemodule;
+    $DB->set_field('course_modules', 'instance', $competition->id, array('id' => $cmid));
+    $context = context_module::instance($cmid);
+    
     $competition -> timemodified = time();
 
     if (empty($competition -> timerestrict)) {
         $competition -> timeopen = 0;
         $competition -> timeclose = 0;
     }
+    
+    if ($draftitemid = $competition -> descriptioneditor['itemid']) {
+        $competition -> description = file_save_draft_area_files($draftitemid, $context -> id, 'mod_competition', 'description', 0, competition_editors_options($context), $competition -> descriptioneditor['text']);
+        $competition -> descriptionformat = $competition -> descriptioneditor['format'];
+    }
 
-    $competition -> id = $DB -> insert_record("competition", $competition);
+    if ($draftitemid = $competition -> dataseteditor['itemid']) {
+        $competition -> dataset = file_save_draft_area_files($draftitemid, $context -> id, 'mod_competition', 'dataset', 0, competition_editors_options($context), $competition -> dataseteditor['text']);
+        $competition -> datasetformat = $competition -> dataseteditor['format'];
+    }
+
+    $DB -> update_record("competition", $competition);
     return $competition -> id;
 }
 
@@ -89,16 +104,31 @@ function competition_add_instance($competition, $mform) {
  */
 function competition_update_instance($competition) {
     global $DB;
-
-    $competition -> id = $competition -> instance;
+    
     $competition -> timemodified = time();
+    $competition -> id = $competition -> instance;
+    
+    $DB->update_record('competition', $competition);
+    $context = context_module::instance($competition->coursemodule);
+    
 
     if (empty($competition -> timerestrict)) {
         $competition -> timeopen = 0;
         $competition -> timeclose = 0;
     }
+    
+    if ($draftitemid = $competition -> descriptioneditor['itemid']) {
+        $competition -> description = file_save_draft_area_files($draftitemid, $context -> id, 'mod_competition', 'description', 0, competition_editors_options($context), $competition -> descriptioneditor['text']);
+        $competition -> descriptionformat = $competition -> descriptioneditor['format'];
+    }
 
-    return $DB -> update_record('competition', $competition);
+    if ($draftitemid = $competition -> dataseteditor['itemid']) {
+        $competition -> dataset = file_save_draft_area_files($draftitemid, $context -> id, 'mod_competition', 'dataset', 0, competition_editors_options($context), $competition -> dataseteditor['text']);
+        $competition -> datasetformat = $competition -> dataseteditor['format'];
+    }
+    
+    $DB -> update_record('competition', $competition);
+    return true;
 }
 
 /**
@@ -132,7 +162,7 @@ function competition_extend_navigation($module, $course, $competition, $cm) {
     $description = $coursenode -> add(get_string('description', 'competition'), new moodle_url('description.php', array('id' => $module -> key)));
     $dataset = $coursenode -> add(get_string('dataset', 'competition'), new moodle_url('dataset.php', array('id' => $module -> key)));
     $leaderboard = $coursenode -> add(get_string('leaderboard', 'competition'), new moodle_url('view.php', array('id' => $module -> key)));
-    $submissions = $coursenode -> add(get_string('mysubmissions', 'competition'), new moodle_url('submit.php', array('id' => $module -> key)));
+    $submissions = $coursenode -> add(get_string('submit', 'competition'), new moodle_url('submit.php', array('id' => $module -> key)));
     $coursenode -> force_open();
 
 }
@@ -140,6 +170,17 @@ function competition_extend_navigation($module, $course, $competition, $cm) {
 function competition_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options = array()) {
     global $DB, $CFG, $USER;
 
+    $itemid = (int)array_shift($args);
+        $fs = get_file_storage();
+        $relativepath = implode('/', $args);
+        $fullpath = "/$context->id/mod_competition/$filearea/$itemid/$relativepath";
+        if (!$file = $fs -> get_file_by_hash(sha1($fullpath)) or $file -> is_directory()) {
+            return false;
+        }
+        // finally send the file forcing download for security reasons
+        send_stored_file($file, 0, 0, true, $options);
+        return false;
+        
     if ($context -> contextlevel != CONTEXT_MODULE) {
         return false;
     }

@@ -12,7 +12,7 @@ except e:
     
 # Match the number of lines, including the header
 if len(template) != len(submission):
-    sys.exit('Submission should contain {} lines including the header'.format(len(template)+1))
+    sys.exit('Your file contains {} lines. Submissions should contain {} lines including the header'.format(len(submission), len(template)+1))
     
 if len(pd.merge(template, submission, on='sample', how='inner')) != len(template):
     sys.exit('Missing classifications for some samples')

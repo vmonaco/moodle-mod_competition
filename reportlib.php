@@ -495,4 +495,14 @@ class competition_submission_form extends moodleform {
         return $errors;
     }
     
+    function get_data() {
+        $data = parent::get_data();
+        if (!$data) {
+            return false;
+        }
+
+        $data->submission = $this->get_file_content('submission');
+        
+        return $data;
+    }
 }

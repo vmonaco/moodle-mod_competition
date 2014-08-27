@@ -12,8 +12,10 @@
                 <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="" />
                 <FIELD NAME="intro" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="" />
                 <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="description" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="" />
-                <FIELD NAME="dataset" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="" />
+                <FIELD NAME="description" TYPE="text" NOTNULL="true" DEFAULT="" SEQUENCE="false" COMMENT="" />
+                <FIELD NAME="descriptionformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+                <FIELD NAME="dataset" TYPE="text" NOTNULL="true" DEFAULT="" SEQUENCE="false" COMMENT="" />
+                <FIELD NAME="datasetformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
                 <FIELD NAME="timeopen" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
                 <FIELD NAME="timeclose" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
                 <FIELD NAME="submissionrate" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="" />
@@ -22,7 +24,7 @@
                 <FIELD NAME="scoringtemplate" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Template used for scoring" />
                 <FIELD NAME="datausage" TYPE="int" LENGTH="3" NOTNULL="true" SEQUENCE="false" COMMENT="Percent of data to be used for scoring" />
                 <FIELD NAME="scorescript" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="" />
-                <FIELD NAME="validatecript" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="" />
+                <FIELD NAME="validatescript" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="" />
                 <FIELD NAME="showscore" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
                 <FIELD NAME="publish" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
                 <FIELD NAME="timescored" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>

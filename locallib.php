@@ -32,7 +32,7 @@ function rescore_competition($competition) {
 
 function validate_submission($compid, $submissionfile) {
     global $DB, $CFG;
-
+    $validatescript = $DB -> get_field('competition', 'validatescript', array('id' => $compid));
     $template = $DB -> get_field('competition', 'scoringtemplate', array('id' => $compid));
     $tmpHandle = tmpfile();
     fwrite($tmpHandle, $template);
@@ -42,7 +42,7 @@ function validate_submission($compid, $submissionfile) {
 
     $params = array($templatefile, $submissionfile);
 
-    $command = escapeshellcmd($CFG -> dirroot . '/mod/competition/scripts/validate.py ' . implode(' ', $params));
+    $command = escapeshellcmd($CFG -> dirroot . '/mod/competition/validate/' . $validatescript . ' ' . implode(' ', $params));
     $output = array('Error parsing submission');
     $exitcode = 0;
     exec($command . ' 2>&1 ', $output, $exitcode);
@@ -51,10 +51,6 @@ function validate_submission($compid, $submissionfile) {
     if ($exitcode > 0) {
         return implode('<br/>', $output);
     }
-}
-
-function submission_rate($competition, $userid) {
-
 }
 
 function remaining_submissions($competition, $userid) {
@@ -92,7 +88,7 @@ function create_submission($compid, $userid, $mform, $fromform) {
     $submission -> compid = $compid;
     $submission -> userid = $userid;
     $submission -> ipaddress = ip2long($_SERVER['REMOTE_ADDR']);
-    $submission -> submission = $mform -> get_file_content('submission');
+    $submission -> submission = $fromform -> submission;
     $submission -> comments = $fromform -> comments;
     $submission -> score = '';
     $submission -> timesubmitted = time();
@@ -131,12 +127,12 @@ function timer_sort_units_to_show($idstring) {
 
 function get_score_scripts() {
     global $COMPETITION_SCORE_DIR;
-    return array_diff(scandir($COMPETITION_SCORE_DIR), array('..', '.'));
+    return array_values(array_diff(scandir($COMPETITION_SCORE_DIR), array('..', '.')));
 }
 
 function get_validate_scripts() {
     global $COMPETITION_VALIDATE_DIR;
-    return array_diff(scandir($COMPETITION_VALIDATE_DIR), array('..', '.'));
+    return array_values(array_diff(scandir($COMPETITION_VALIDATE_DIR), array('..', '.')));
 }
 
 function create_timer($timeLeft, $expirytext) {

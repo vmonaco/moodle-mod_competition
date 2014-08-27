@@ -60,9 +60,6 @@ if ($mform -> is_cancelled()) {
     // Make a submission
     create_submission($competition -> id, $USER -> id, $mform, $fromform);
 } else {
-    // this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
-    // or on the first display of the form.
-
     //Set default data (if any)
     $data = new stdClass();
     $mform -> set_data($data);

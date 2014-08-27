@@ -12,6 +12,8 @@ if (!defined('MOODLE_INTERNAL')) {
 }
 
 require_once ($CFG -> dirroot . '/course/moodleform_mod.php');
+require_once($CFG->libdir . '/filelib.php');
+// require_once($CFG->libdir . '/editorlib.php');
 
 class mod_competition_mod_form extends moodleform_mod {
 
@@ -42,8 +44,7 @@ class mod_competition_mod_form extends moodleform_mod {
         $mform -> setType('dataseteditor', PARAM_RAW);
         $mform -> addRule('dataseteditor', get_string('required'), 'required', null, 'client');
 
-        // $mform->addElement('file', 'scoringtemplate', get_string('scoringtemplate', 'competition')); //, null, array('accepted_types' => '*'));
-        // $mform->addRule('scoringtemplate', null, 'required', null, 'client');
+        $mform -> addElement('filepicker', 'scoringtemplate', get_string('scoringtemplate', 'competition'));
 
         //-------------------------------------------------------------------------------
         $mform -> addElement('header', 'optionhdr', get_string('options', 'competition'));
@@ -75,7 +76,7 @@ class mod_competition_mod_form extends moodleform_mod {
         $mform -> addElement('header', 'resultshdr', get_string('results', 'competition'));
 
         $mform -> addElement('select', 'showscore', get_string('showscore', 'competition'), $COMPETITION_SHOWSCORE);
-        $mform -> addElement('select', 'publish', get_string('privacy', 'competition'), $COMPETITION_PUBLISH);
+        $mform -> addElement('select', 'publish', get_string('leaderboardprivacy', 'competition'), $COMPETITION_PUBLISH);
         //-------------------------------------------------------------------------------
         $this -> standard_coursemodule_elements();
         //-------------------------------------------------------------------------------
@@ -90,31 +91,29 @@ class mod_competition_mod_form extends moodleform_mod {
         } else {
             $data['timerestrict'] = 1;
         }
+
         if ($this -> current -> instance) {
             // editing an existing competition - let us prepare the added editor elements (intro done automatically)
-            $draftitemid = file_get_submitted_draft_itemid('dataset');
-            $data['dataseteditor']['text'] = file_prepare_draft_area($draftitemid, $this -> context -> id, 'mod_competition', 'dataset', 0, competition_editors_options($this -> context), $data['dataset']);
-            $data['dataseteditor']['format'] = editors_get_preferred_format();
-            //$data['datasetformat'];
-            $data['dataseteditor']['itemid'] = $draftitemid;
-
             $draftitemid = file_get_submitted_draft_itemid('description');
             $data['descriptioneditor']['text'] = file_prepare_draft_area($draftitemid, $this -> context -> id, 'mod_competition', 'description', 0, competition_editors_options($this -> context), $data['description']);
-            $data['descriptioneditor']['format'] = editors_get_preferred_format();
-            //$data['descriptionformat'];
+            $data['descriptioneditor']['format'] = $data['descriptionformat'];
             $data['descriptioneditor']['itemid'] = $draftitemid;
 
+            $draftitemid = file_get_submitted_draft_itemid('dataset');
+            $data['dataseteditor']['text'] = file_prepare_draft_area($draftitemid, $this -> context -> id, 'mod_competition', 'dataset', 0, competition_editors_options($this -> context), $data['dataset']);
+            $data['dataseteditor']['format'] = $data['datasetformat'];
+            $data['dataseteditor']['itemid'] = $draftitemid;
         } else {
             // adding a new competition instance
-            $draftitemid = file_get_submitted_draft_itemid('dataset');
-            file_prepare_draft_area($draftitemid, null, 'mod_competition', 'dataset', 0);
-            // no context yet, itemid not used
-            $data['dataseteditor'] = array('text' => '', 'format' => editors_get_preferred_format(), 'itemid' => $draftitemid);
-
             $draftitemid = file_get_submitted_draft_itemid('description');
             file_prepare_draft_area($draftitemid, null, 'mod_competition', 'description', 0);
-            // no context yet, itemid not used
             $data['descriptioneditor'] = array('text' => '', 'format' => editors_get_preferred_format(), 'itemid' => $draftitemid);
+
+            $draftitemid = file_get_submitted_draft_itemid('dataset');
+            file_prepare_draft_area($draftitemid, null, 'mod_competition', 'dataset', 0);
+            $data['dataseteditor'] = array('text' => '', 'format' => editors_get_preferred_format(), 'itemid' => $draftitemid);
+
+            $this -> _form -> addRule('scoringtemplate', null, 'required', null, 'client');
         }
     }
 
@@ -123,35 +122,18 @@ class mod_competition_mod_form extends moodleform_mod {
         if (!$data) {
             return false;
         }
-        // Set up completion section even if checkbox is not ticked
-        if (!empty($data -> completionunlocked)) {
-            if (empty($data -> completionsubmit)) {
-                $data -> completionsubmit = 0;
-            }
-        }
 
-        if ($draftitemid = $data -> descriptioneditor['itemid']) {
-            $data -> description = file_save_draft_area_files($draftitemid, $this -> context -> id, 'mod_competition', 'description', 0, competition_editors_options($this -> context), $data -> descriptioneditor['text']);
-            $data -> descriptionformat = $data -> descriptioneditor['format'];
+        if ($data->scoringtemplate > 0) {
+            $data->scoringtemplate = $this->get_file_content('scoringtemplate');
         }
-
-        if ($draftitemid = $data -> dataseteditor['itemid']) {
-            $data -> dataset = file_save_draft_area_files($draftitemid, $this -> context -> id, 'mod_competition', 'dataset', 0, competition_editors_options($this -> context), $data -> dataseteditor['text']);
-            $data -> datasetformat = $data -> dataseteditor['format'];
-        }
-
+        
+        $validatescripts = get_validate_scripts();
+        $data->validatescript = $validatescripts[$data->validatescript];
+        
+       $scorescripts = get_score_scripts();
+        $data->scorescript = $scorescripts[$data->scorescript];
+         
         return $data;
-    }
-
-    function add_completion_rules() {
-        $mform = &$this -> _form;
-
-        $mform -> addElement('checkbox', 'completionsubmit', '', get_string('completionsubmit', 'competition'));
-        return array('completionsubmit');
-    }
-
-    function completion_rule_enabled($data) {
-        return !empty($data['completionsubmit']);
     }
 
 }

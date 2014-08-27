@@ -44,6 +44,6 @@ $options = array('noclean' => true, 'para' => false, 'filter' => true, 'context'
 
 $description = file_rewrite_pluginfile_urls($competition -> description, 'pluginfile.php', $PAGE -> context -> id, 'mod_competition', 'description', 0, competition_editors_options($PAGE -> context));
 
-echo $OUTPUT -> box(trim(format_text($description, $competition -> introformat, $options, null)));
+echo $OUTPUT -> box(trim(format_text($description, $competition -> descriptionformat, $options, null)));
 
 echo $OUTPUT -> footer();
