@@ -33,45 +33,56 @@ if (!$competition = competition_get_competition($cm -> instance)) {
     print_error('invalidcoursemodule');
 }
 
+if (!has_capability('mod/competition:submit', context_module::instance($cm->id))) {
+    print_error('nosubmitaccess', 'competition');
+}
+
 $PAGE -> set_title(format_string($competition -> name));
-$PAGE -> set_heading($competition -> name);
+$PAGE -> set_heading($competition -> name . ' ' . get_string('submission', 'competition'));
 
 echo $OUTPUT -> header();
 
-// Show a timer if the user must wait to make a submission
-list($submissionsleft, $timeleft) = remaining_submissions($competition, $USER -> id);
+$state = competition_state($competition);
 
-if ($submissionsleft) {
-    echo "<div>You have $submissionsleft submissions left</div>";
-} else {
-    $PAGE -> requires -> js('/mod/competition/scripts/jquery-1.10.2.min.js');
-    $PAGE -> requires -> js('/mod/competition/scripts/timer.js');
-    echo create_timer($timeleft, 'Until you can make another submission');
-}
+if (COMPETITION_STATE_BEFORE_OPEN == $state) {
+    echo "<hr><div class='mod_competition_timer numberTypeWrapper'><p>";
+    echo "Competition has not opened yet.";
+    echo "</p></div><hr>";
+} else if (COMPETITION_STATE_AFTER_CLOSE == $state) {
+    echo "<hr><div class='mod_competition_timer numberTypeWrapper'><p>";
+    echo "Competition is closed, you cannot make new submissions.";
+    echo "</p></div><hr>";
+} else { // state open or no limits
+    $mform = new competition_submission_form($url -> out());
+    $mform -> competition = $competition;
+    $mform -> userid = $USER -> id;
 
-// Only show the submission form if a user can currently make submissions
-$mform = new competition_submission_form($url -> out());
-$mform -> competition = $competition;
-$mform -> userid = $USER -> id;
-
-if ($mform -> is_cancelled()) {
-    //Handle form cancel operation, if cancel button is present on form
-} else if ($fromform = $mform -> get_data()) {
-    // Make a submission
-    create_submission($competition -> id, $USER -> id, $mform, $fromform);
-} else {
-    //Set default data (if any)
-    $data = new stdClass();
-    $mform -> set_data($data);
-    //displays the form
+    if ($mform -> is_cancelled()) {
+        // Do nothing
+    } else if ($fromform = $mform -> get_data()) {
+        // Make a submission
+        create_submission($competition -> id, $USER -> id, $mform, $fromform);
+    }
+    
+    // Show a timer if the user must wait to make a submission
+    list($submissionsleft, $timeleft) = remaining_submissions($competition, $USER -> id);
+    
+    if ($submissionsleft) {
+        $s = $submissionsleft > 1 ? 's' : '';
+        echo "<hr><div class='mod_competition_timer numberTypeWrapper'><p>";
+        echo "You can make up to $submissionsleft submission$s right now";
+        echo "</p></div><hr>";
+    } else if (COMPETITION_STATE_OPEN == $state) {
+        $PAGE -> requires -> js('/mod/competition/scripts/jquery-1.10.2.min.js');
+        $PAGE -> requires -> js('/mod/competition/scripts/timer.js');
+        echo create_timer($timeleft, 'Until you can make another submission');
+    }
+    
     $mform -> display();
 }
 
-$leaderboard = new competition_submission_report($competition, $USER);
-$leaderboard -> load_submissions();
-$numdata = $leaderboard -> get_numrows();
-
-$leaderboardhtml = $leaderboard -> get_report_table();
-echo $leaderboardhtml;
-
+$submissions = new competition_submission_report($competition, $USER);
+$submissions-> load_submissions();
+$numdata = $submissions -> get_numrows();
+echo $submissions-> get_report_table();
 echo $OUTPUT -> footer();

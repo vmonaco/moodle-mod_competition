@@ -121,6 +121,28 @@ class competition_leaderboard_report {
 
         $headerrow = new html_table_row();
         $headerrow -> attributes['class'] = 'heading';
+        
+        $blankheader = new html_table_cell();
+        $blankheader->attributes['class'] = 'header';
+        $blankheader->colspan = '2';
+        $blankheader->scope = 'col';
+        $blankheader->header = true;
+        $blankheader->id = 'blankheader';
+        $headerrow->cells[] = $blankheader;
+        
+        $scoreheader = new html_table_cell();
+        $scoreheader -> attributes['class'] = 'header';
+        $scoreheader -> colspan = '100%';
+        $scoreheader -> scope = 'col';
+        $scoreheader -> header = true;
+        $scoreheader -> id = 'idheader';
+        $scoreheader -> text = get_string('scores', 'competition');
+        $headerrow -> cells[] = $scoreheader;
+        
+        $rows[] = $headerrow;
+        
+        $headerrow = new html_table_row();
+        $headerrow -> attributes['class'] = 'heading';
 
         $rankheader = new html_table_cell();
         $rankheader -> attributes['class'] = 'header';
@@ -144,7 +166,7 @@ class competition_leaderboard_report {
             $scoreheader -> scope = 'col';
             $scoreheader -> header = true;
             $scoreheader -> id = 'scoreheader';
-            $scoreheader -> text = $scorename;
+            $scoreheader -> text = ucwords($scorename);
             $headerrow -> cells[] = $scoreheader;
         }
 
@@ -313,7 +335,30 @@ class competition_submission_report {
         global $CFG, $USER, $OUTPUT, $DB;
 
         $rows = array();
-
+        
+        $headerrow = new html_table_row();
+        $headerrow -> attributes['class'] = 'heading';
+        
+        $blankheader = new html_table_cell();
+        $blankheader->attributes['class'] = 'header';
+        $blankheader->colspan = '4';
+        $blankheader->scope = 'col';
+        $blankheader->header = true;
+        $blankheader->id = 'blankheader';
+        $headerrow->cells[] = $blankheader;
+        
+        $scoreheader = new html_table_cell();
+        $scoreheader -> attributes['class'] = 'header';
+        $scoreheader -> colspan = '100%';
+        $scoreheader -> scope = 'col';
+        $scoreheader -> header = true;
+        $scoreheader -> id = 'idheader';
+        $scoreheader -> text = get_string('scores', 'competition');
+        $headerrow -> cells[] = $scoreheader;
+        
+        $rows[] = $headerrow;
+        
+        
         $headerrow = new html_table_row();
         $headerrow -> attributes['class'] = 'heading';
 
@@ -355,18 +400,18 @@ class competition_submission_report {
             $scoreheader -> scope = 'col';
             $scoreheader -> header = true;
             $scoreheader -> id = 'scoreheader';
-            $scoreheader -> text = $scorename;
+            $scoreheader -> text = ucwords($scorename);
             $headerrow -> cells[] = $scoreheader;
         }
 
         
-        $downloadheader = new html_table_cell();
-        $downloadheader -> attributes['class'] = 'header';
-        $downloadheader -> scope = 'col';
-        $downloadheader -> header = true;
-        $downloadheader -> id = 'downloadheader';
-        $downloadheader -> text = get_string('name');
-        $headerrow -> cells[] = $downloadheader;
+        //$downloadheader = new html_table_cell();
+        //$downloadheader -> attributes['class'] = 'header';
+        //$downloadheader -> scope = 'col';
+        //$downloadheader -> header = true;
+        //$downloadheader -> id = 'downloadheader';
+        //$downloadheader -> text = get_string('name');
+        //$headerrow -> cells[] = $downloadheader;
         
         $rows[] = $headerrow;
         $rowclasses = array('even', 'odd');
@@ -395,14 +440,14 @@ class competition_submission_report {
             $timesubmittedcell -> attributes['class'] = 'timesubmitted';
             $timesubmittedcell -> header = true;
             $timesubmittedcell -> scope = 'row';
-            $timesubmittedcell -> text .= $submission->timesubmitted;
+            $timesubmittedcell -> text .= date("M j G:i T Y", $submission->timesubmitted);
             $row -> cells[] = $timesubmittedcell;
             
             $timescoredcell = new html_table_cell();
             $timescoredcell -> attributes['class'] = 'timescored';
             $timescoredcell -> header = true;
             $timescoredcell -> scope = 'row';
-            $timescoredcell -> text .= $submission->timescored;
+            $timescoredcell -> text .= $submission->timescored > 0 ? date("M j G:i T Y", $submission->timescored) : '--';
             $row -> cells[] = $timescoredcell;
 
             foreach ($this->scorenames as $scorename) {
@@ -418,12 +463,12 @@ class competition_submission_report {
                 $row -> cells[] = $scorecell;
             }
 
-            $downloadcell = new html_table_cell();
-            $downloadcell -> attributes['class'] = 'download';
-            $downloadcell -> header = true;
-            $downloadcell -> scope = 'row';
-            $downloadcell -> text .= 'Download link';
-            $row -> cells[] = $downloadcell;
+            //$downloadcell = new html_table_cell();
+            //$downloadcell -> attributes['class'] = 'download';
+            //$downloadcell -> header = true;
+            //$downloadcell -> scope = 'row';
+            //$downloadcell -> text .= 'Download link';
+            //$row -> cells[] = $downloadcell;
             
             $rows[] = $row;
         }
@@ -488,7 +533,7 @@ class competition_submission_form extends moodleform {
            return $errors; # No need to continue
         }
     
-        if ($submissionerror = validate_submission($this->competition->id, $files['submission'])) {
+        if ($submissionerror = validate_submission($this->competition, $files['submission'])) {
             $errors['submission'] = $submissionerror;
         }
         

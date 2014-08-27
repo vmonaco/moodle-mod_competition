@@ -25,3 +25,5 @@
 .mod_competition_timer .text-wrapper{margin-top: 10px;}
 .mod_competition_timer .text-wrapper .text-desc{font-size: 0.65em;}
 .mod_competition_timer .text-wrapper .sub-text{font-size: 0.8em;}
+
+.mod_competition .leaderboard p{text-align: center;}

@@ -103,6 +103,7 @@ class mod_competition_mod_form extends moodleform_mod {
             $data['dataseteditor']['text'] = file_prepare_draft_area($draftitemid, $this -> context -> id, 'mod_competition', 'dataset', 0, competition_editors_options($this -> context), $data['dataset']);
             $data['dataseteditor']['format'] = $data['datasetformat'];
             $data['dataseteditor']['itemid'] = $draftitemid;
+            
         } else {
             // adding a new competition instance
             $draftitemid = file_get_submitted_draft_itemid('description');
@@ -112,7 +113,7 @@ class mod_competition_mod_form extends moodleform_mod {
             $draftitemid = file_get_submitted_draft_itemid('dataset');
             file_prepare_draft_area($draftitemid, null, 'mod_competition', 'dataset', 0);
             $data['dataseteditor'] = array('text' => '', 'format' => editors_get_preferred_format(), 'itemid' => $draftitemid);
-
+            
             $this -> _form -> addRule('scoringtemplate', null, 'required', null, 'client');
         }
     }
@@ -122,15 +123,18 @@ class mod_competition_mod_form extends moodleform_mod {
         if (!$data) {
             return false;
         }
-
-        if ($data->scoringtemplate > 0) {
-            $data->scoringtemplate = $this->get_file_content('scoringtemplate');
+        
+        // Unset the scoring template if a new one hasn't been uploaded
+        if ($scoringtemplate = $this->get_file_content('scoringtemplate')) {
+            $data->scoringtemplate = $scoringtemplate;
+        } else {
+            unset($data->scoringtemplate);
         }
         
         $validatescripts = get_validate_scripts();
         $data->validatescript = $validatescripts[$data->validatescript];
         
-       $scorescripts = get_score_scripts();
+        $scorescripts = get_score_scripts();
         $data->scorescript = $scorescripts[$data->scorescript];
          
         return $data;

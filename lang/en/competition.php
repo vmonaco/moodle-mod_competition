@@ -71,6 +71,10 @@ $string['scorescript'] = 'Scoring script';
 $string['validatescript'] = 'Validation script';
 $string['intro'] = 'Introduction';
 $string['dataset'] = 'Dataset';
+$string['updatescoretemplate'] = 'Update scoring template (overwrite existing)';
+$string['nosubmitaccess'] = 'Must be logged in and registered for the competition to make submissions';
+$string['nodownloadaccess'] = 'Must be logged in and registered for the competition to download files';
+$string['scores'] = 'Scores';
 
 $string['addmorecompetitions'] = 'Add more competitions';
 $string['allowupdate'] = 'Allow competition to be updated';
@@ -81,21 +85,13 @@ $string['displaymode'] = 'Display mode for the options';
 $string['displayvertical'] = 'Display vertically';
 $string['expired'] = 'Sorry, this activity closed on {$a} and is no longer available';
 $string['atleastoneoption'] = 'You need to provide at least one possible answer.';
-$string['full'] = '(Full)';
-$string['havetologin'] = 'You have to log in before you can submit your competition';
 $string['competition'] = 'competition';
 $string['competition:addinstance'] = 'Add a new competition';
-$string['competition:deleteresponses'] = 'Delete responses';
-$string['competition:downloadresponses'] = 'Download responses';
+$string['competition:submit'] = 'Delete responses';
+$string['competition:download'] = 'Download responses';
 $string['competitionfull'] = 'This competition is full and there are no available places.';
 $string['competition:choose'] = 'Record a competition';
 $string['competitionoptions'] = 'competition options';
-$string['competitionoptions_help'] = 'Here is where you specify the options that participants have to choose from.
-
-You can fill in any number of these. If you leave some of the options blank, they will not be displayed. If you need more than 8 options, click the "Add 3 fields to form" button.';
-$string['limitanswers_help'] = 'This option allows you to limit the number of participants that can select each competition option. When the limit is reached then no-one else can select that option.
-
-If limits are disabled then any number of participants can select each of the options.';
 $string['competition:readresponses'] = 'Read responses';
 $string['competitionsaved'] = 'Your competition has been saved';
 $string['competitiontext'] = 'competition text';

@@ -17,8 +17,6 @@ $id = required_param('id', PARAM_INT);
 $url = new moodle_url('/mod/competition/dataset.php', array('id' => $id));
 $PAGE -> set_url($url);
 
-require_login();
-
 if (!$cm = get_coursemodule_from_id('competition', $id)) {
     print_error('invalidcoursemodule');
 }
@@ -34,18 +32,13 @@ if (!$competition = competition_get_competition($cm -> instance)) {
 }
 
 $PAGE -> set_title(format_string($competition -> name));
-$PAGE -> set_heading($competition -> name);
+$PAGE -> set_heading($competition -> name . ' ' . get_string('dataset', 'competition'));
 
 echo $OUTPUT -> header();
 
-global $CFG;
-
 $context = context_module::instance($cm -> id);
-
 $options = array('noclean' => true, 'para' => false, 'filter' => true, 'context' => $context, 'overflowdiv' => true);
-
 $dataset = file_rewrite_pluginfile_urls($competition -> dataset, 'pluginfile.php', $PAGE -> context -> id, 'mod_competition', 'dataset', 0, competition_editors_options($PAGE -> context));
 
 echo $OUTPUT -> box(trim(format_text($dataset, $competition -> datasetformat, $options, null)));
-
 echo $OUTPUT -> footer();

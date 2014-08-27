@@ -25,29 +25,22 @@ function rescore_competition($competition) {
 
     $params = array($CFG -> dboptions['dbsocket'], $CFG -> dbuser, $CFG -> dbpass, $CFG -> dbname, $CFG -> prefix, $competition -> id, $competition -> datausage);
 
-    $command = escapeshellcmd($CFG -> dirroot . '/mod/competition/scorers' . $competition -> scorescript . implode(' ', $params));
+    $command = escapeshellcmd($CFG -> dirroot . '/mod/competition/score/' . $competition -> scorescript . ' ' . implode(' ', $params));
     exec($command);
     $DB -> set_field('competition', 'timescored', time(), array('id' => $competition -> id));
 }
 
-function validate_submission($compid, $submissionfile) {
+function validate_submission($competition, $submissionfile) {
     global $DB, $CFG;
-    $validatescript = $DB -> get_field('competition', 'validatescript', array('id' => $compid));
-    $template = $DB -> get_field('competition', 'scoringtemplate', array('id' => $compid));
-    $tmpHandle = tmpfile();
-    fwrite($tmpHandle, $template);
-    fseek($tmpHandle, 0);
-    $metaDatas = stream_get_meta_data($tmpHandle);
-    $templatefile = $metaDatas['uri'];
+    
+    $params = array($CFG -> dboptions['dbsocket'], $CFG -> dbuser, $CFG -> dbpass, $CFG -> dbname, $CFG -> prefix, $competition -> id, $submissionfile);
 
-    $params = array($templatefile, $submissionfile);
-
-    $command = escapeshellcmd($CFG -> dirroot . '/mod/competition/validate/' . $validatescript . ' ' . implode(' ', $params));
+    $command = escapeshellcmd($CFG -> dirroot . '/mod/competition/validate/' . $competition->validatescript . ' ' . implode(' ', $params));
+    var_dump($command);
     $output = array('Error parsing submission');
     $exitcode = 0;
     exec($command . ' 2>&1 ', $output, $exitcode);
-    fclose($tmpHandle);
-
+    
     if ($exitcode > 0) {
         return implode('<br/>', $output);
     }

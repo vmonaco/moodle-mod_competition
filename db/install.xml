@@ -12,9 +12,9 @@
                 <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="" />
                 <FIELD NAME="intro" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="" />
                 <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="description" TYPE="text" NOTNULL="true" DEFAULT="" SEQUENCE="false" COMMENT="" />
+                <FIELD NAME="description" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="" />
                 <FIELD NAME="descriptionformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="dataset" TYPE="text" NOTNULL="true" DEFAULT="" SEQUENCE="false" COMMENT="" />
+                <FIELD NAME="dataset" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="" />
                 <FIELD NAME="datasetformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
                 <FIELD NAME="timeopen" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
                 <FIELD NAME="timeclose" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -32,6 +32,7 @@
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+		<KEY NAME="course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" />
             </KEYS>
             <INDEXES>
                 
@@ -78,21 +79,6 @@
             <INDEXES>
                 <INDEX NAME="comp-user" UNIQUE="true" FIELDS="compid,userid" />
                 <INDEX NAME="comp-rank" UNIQUE="true" FIELDS="compid,rank" />
-            </INDEXES>
-        </TABLE>
-		
-		<TABLE NAME="competition_scorer"
-            COMMENT="Scoring algorithms that score submissions (possibly based on a correct file)">
-            <FIELDS>
-                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
-                <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="" />
-                <FIELD NAME="description" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="" />
-                <FIELD NAME="script" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="" />
-            </FIELDS>
-            <KEYS>
-                <KEY NAME="primary" TYPE="primary" FIELDS="id" />
-            </KEYS>
-            <INDEXES>
             </INDEXES>
         </TABLE>
         
