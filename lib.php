@@ -90,7 +90,7 @@ function competition_add_instance($competition, $mform) {
 	$competition -> dataset = $competition -> dataseteditor['text'];
 	$competition -> descriptionformat = $competition -> descriptioneditor['format'];
 	$competition -> datasetformat = $competition -> dataseteditor['format'];
-    $competition->forumcoursemodule = create_forum($competition->name, $competition->section, $competition->course);
+    $competition->forumcoursemodule = create_forum(get_string('forum', 'competition'), $competition->section, $competition->course);
     
 	$competition -> id = $DB -> insert_record('competition', $competition);
 

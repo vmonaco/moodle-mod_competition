@@ -41,7 +41,7 @@ $PAGE -> set_title(format_string($competition -> name));
 $PAGE->set_heading($course->fullname . ' : ' . get_string('submit', 'competition'));
 
 echo $OUTPUT -> header();
-
+echo '<h1>' . get_string('submit', 'competition') . '</h1>';
 $state = competition_state($competition);
 
 if (COMPETITION_STATE_BEFORE_OPEN == $state) {

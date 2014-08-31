@@ -31,9 +31,10 @@ if (!$competition = competition_get_competition($cm -> instance)) {
 }
 
 $PAGE -> set_title(format_string($competition -> name));
-$PAGE->set_heading($course->fullname . ' : ' . get_string('description', 'competition'));
+$PAGE->set_heading($course->fullname);
 
 echo $OUTPUT -> header();
+echo '<h1>' . get_string('description', 'competition') . '</h1>';
 
 $context = context_module::instance($cm -> id);
 $options = array('noclean' => true, 'para' => false, 'filter' => true, 'context' => $context, 'overflowdiv' => true);

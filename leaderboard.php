@@ -32,9 +32,10 @@ if (!$competition = competition_get_competition($cm -> instance)) {
 }
 
 $PAGE->set_title(format_string($competition->name));
-$PAGE->set_heading($course->fullname . ' : ' . get_string('leaderboard', 'competition'));
+$PAGE->set_heading($course->fullname);
 
 echo $OUTPUT -> header();
+echo '<h1>' . get_string('leaderboard', 'competition') . '</h1>';
 
 $PAGE->requires->js('/mod/competition/scripts/jquery-1.10.2.min.js');
 $PAGE->requires->js('/mod/competition/scripts/timer.js');
