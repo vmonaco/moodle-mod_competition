@@ -24,7 +24,7 @@ if (!$course = $DB -> get_record("course", array("id" => $cm -> course))) {
     print_error('coursemisconf');
 }
 
-require_course_login($course, false, $cm);
+require_course_login($course, true, $cm);
 
 if (!$competition = competition_get_competition($cm -> instance)) {
     print_error('invalidcoursemodule');
