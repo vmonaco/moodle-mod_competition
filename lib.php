@@ -188,9 +188,9 @@ function competition_extend_navigation($module, $course, $competition, $cm) {
     
     $description = $coursenode -> add(get_string('description', 'competition'), new moodle_url('/mod/competition/view.php', array('id' => $compid)));
     $dataset = $coursenode -> add(get_string('dataset', 'competition'), new moodle_url('/mod/competition/dataset.php', array('id' => $compid)));
-    $forum = $coursenode -> add(get_string('forum', 'competition'), new moodle_url('/mod/forum/view.php', array('id' => $forumid)));
     $leaderboard = $coursenode -> add(get_string('leaderboard', 'competition'), new moodle_url('/mod/competition/leaderboard.php', array('id' => $compid)));
     if (has_capability('mod/competition:submit', context_module::instance($compid))) {
+        $forum = $coursenode -> add(get_string('forum', 'competition'), new moodle_url('/mod/forum/view.php', array('id' => $forumid)));
         $submissions = $coursenode -> add(get_string('submit', 'competition'), new moodle_url('/mod/competition/submit.php', array('id' => $compid)));
     }
 
@@ -215,9 +215,9 @@ function forum_extend_navigation($module, $course, $forum, $cm) {
     
     $description = $coursenode -> add(get_string('description', 'competition'), new moodle_url('/mod/competition/view.php', array('id' => $compid)));
     $dataset = $coursenode -> add(get_string('dataset', 'competition'), new moodle_url('/mod/competition/dataset.php', array('id' => $compid)));
-    $forum = $coursenode -> add(get_string('forum', 'competition'), new moodle_url('/mod/forum/view.php', array('id' => $forumid)));
     $leaderboard = $coursenode -> add(get_string('leaderboard', 'competition'), new moodle_url('/mod/competition/leaderboard.php', array('id' => $compid)));
     if (has_capability('mod/competition:submit', context_module::instance($compid))) {
+        $forum = $coursenode -> add(get_string('forum', 'competition'), new moodle_url('/mod/forum/view.php', array('id' => $forumid)));
         $submissions = $coursenode -> add(get_string('submit', 'competition'), new moodle_url('/mod/competition/submit.php', array('id' => $compid)));
     }
 
