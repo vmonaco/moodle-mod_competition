@@ -31,7 +31,7 @@ if (!$competition = competition_get_competition($cm -> instance)) {
 }
 
 $PAGE -> set_title(format_string($competition -> name));
-$PAGE -> set_heading($competition -> name . ' ' . get_string('description', 'competition'));
+$PAGE->set_heading($course->fullname . ' : ' . get_string('description', 'competition'));
 
 echo $OUTPUT -> header();
 

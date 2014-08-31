@@ -38,7 +38,7 @@ if (!has_capability('mod/competition:submit', context_module::instance($cm->id))
 }
 
 $PAGE -> set_title(format_string($competition -> name));
-$PAGE -> set_heading($competition -> name . ' ' . get_string('submission', 'competition'));
+$PAGE->set_heading($course->fullname . ' : ' . get_string('submit', 'competition'));
 
 echo $OUTPUT -> header();
 
