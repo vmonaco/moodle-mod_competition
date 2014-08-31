@@ -75,6 +75,7 @@ $string['updatescoretemplate'] = 'Update scoring template (overwrite existing)';
 $string['nosubmitaccess'] = 'Must be logged in and registered for the competition to make submissions';
 $string['nodownloadaccess'] = 'Must be logged in and registered for the competition to download files';
 $string['scores'] = 'Scores';
+$string['forum'] = 'Forum';
 
 $string['addmorecompetitions'] = 'Add more competitions';
 $string['allowupdate'] = 'Allow competition to be updated';

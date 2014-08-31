@@ -227,3 +227,38 @@ function create_timer($timeLeft, $expirytext) {
 function competition_editors_options(stdclass $context) {
     return array('subdirs' => 1, 'maxbytes' => 0, 'maxfiles' => -1, 'changeformat' => 1, 'context' => $context, 'noclean' => 1, 'trusttext' => 0);
 }
+
+function create_forum($name, $section, $course) {
+    global $DB, $CFG;
+    
+    $add = 'forum';
+
+    $course = $DB->get_record('course', array('id'=>$course), '*', MUST_EXIST);
+
+    list($module, $context, $cw) = can_add_moduleinfo($course, $add, $section);
+
+    $data = new stdClass();
+    $data->section          = $section;  // The section number itself - relative!!! (section column in course_sections)
+    $data->visible          = $cw->visible;
+    $data->course           = $course->id;
+    $data->module           = $module->id;
+    $data->modulename       = $module->name;
+    $data->groupmode        = $course->groupmode;
+    $data->groupingid       = $course->defaultgroupingid;
+    $data->groupmembersonly = 0;
+    $data->id               = '';
+    $data->instance         = '';
+    $data->coursemodule     = '';
+    $data->add              = $add;
+    $data->return           = 0; //must be false if this is an add, go back to course view on cancel
+    $data->name             = $name;
+    $data->cmidnumber       = $module->id;
+    $data->type             = 'mod';
+    $data->forcesubscribe   = 0;
+    
+    $draftid_editor = file_get_submitted_draft_itemid('introeditor');
+    $data->introeditor = array('text'=>'', 'format'=>FORMAT_HTML, 'itemid'=>$draftid_editor); // TODO: add better default
+    
+    $forum = add_moduleinfo($data, $course);
+    return $forum->coursemodule;
+}
