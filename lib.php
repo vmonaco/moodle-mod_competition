@@ -178,11 +178,6 @@ function competition_extend_navigation($module, $course, $competition, $cm) {
 
     $coursenode = $PAGE -> navigation -> find($course -> id, navigation_node::TYPE_COURSE);
     
-    // Remove orphaned nodes, we link to the forum below
-    if ($coursenode -> get("30")) {
-        $coursenode -> get("30")->remove();
-    }
-    
     // Remove all other nodes
     foreach ($coursenode->get_children_key_list() as $idx => $key) {
         $coursenode -> get($key) -> hide();
@@ -205,31 +200,28 @@ function competition_extend_navigation($module, $course, $competition, $cm) {
 function forum_extend_navigation($module, $course, $forum, $cm) {
     global $PAGE, $DB;
 
+    $compid = $DB->get_field('competition', 'coursemodule', array('forumcoursemodule'=>$module->key));
+    $forumid = $module->key;
     $coursenode = $PAGE -> navigation -> find($course -> id, navigation_node::TYPE_COURSE);
     
+    // var_dump($coursenode->children);
     // Remove orphaned nodes, we link to the forum below
-    if ($coursenode -> get("30")) {
-        $coursenode -> get("30")->remove();
-    }
+    $coursenode -> get($module->parent->key)->remove();
     
     // Remove all other nodes
     foreach ($coursenode->get_children_key_list() as $idx => $key) {
         $coursenode -> get($key) -> hide();
     }
     
-    $compid = $DB->get_field('competition', 'coursemodule', array('forumcoursemodule'=>$module->key));
-    $forumid = $module->key;
-    
     $description = $coursenode -> add(get_string('description', 'competition'), new moodle_url('/mod/competition/view.php', array('id' => $compid)));
     $dataset = $coursenode -> add(get_string('dataset', 'competition'), new moodle_url('/mod/competition/dataset.php', array('id' => $compid)));
     $forum = $coursenode -> add(get_string('forum', 'competition'), new moodle_url('/mod/forum/view.php', array('id' => $forumid)));
     $leaderboard = $coursenode -> add(get_string('leaderboard', 'competition'), new moodle_url('/mod/competition/leaderboard.php', array('id' => $compid)));
-    // if (has_capability('mod/competition:submit', context_module::instance($compid))) {
+    if (has_capability('mod/competition:submit', context_module::instance($compid))) {
         $submissions = $coursenode -> add(get_string('submit', 'competition'), new moodle_url('/mod/competition/submit.php', array('id' => $compid)));
-    // }
+    }
 
     $coursenode -> force_open();
-    
 }
 
 function competition_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options = array()) {
