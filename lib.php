@@ -178,6 +178,11 @@ function competition_extend_navigation($module, $course, $competition, $cm) {
 
     $coursenode = $PAGE -> navigation -> find($course -> id, navigation_node::TYPE_COURSE);
     
+    // Remove orphaned nodes, we link to the forum below
+    if ($coursenode -> get($module->parent->key)) {
+        $coursenode -> get($module->parent->key)->remove();
+    }
+    
     // Remove all other nodes
     foreach ($coursenode->get_children_key_list() as $idx => $key) {
         $coursenode -> get($key) -> hide();
@@ -199,14 +204,16 @@ function competition_extend_navigation($module, $course, $competition, $cm) {
 
 function forum_extend_navigation($module, $course, $forum, $cm) {
     global $PAGE, $DB;
-
+    
     $compid = $DB->get_field('competition', 'coursemodule', array('forumcoursemodule'=>$module->key));
     $forumid = $module->key;
     $coursenode = $PAGE -> navigation -> find($course -> id, navigation_node::TYPE_COURSE);
     
     // var_dump($coursenode->children);
     // Remove orphaned nodes, we link to the forum below
-    $coursenode -> get($module->parent->key)->remove();
+    if ($coursenode -> get($module->parent->key)) {
+        $coursenode -> get($module->parent->key)->remove();
+    }
     
     // Remove all other nodes
     foreach ($coursenode->get_children_key_list() as $idx => $key) {

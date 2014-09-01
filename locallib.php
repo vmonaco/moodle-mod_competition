@@ -36,7 +36,7 @@ function validate_submission($competition, $submissionfile) {
     $params = array($CFG -> dboptions['dbsocket'], $CFG -> dbuser, $CFG -> dbpass, $CFG -> dbname, $CFG -> prefix, $competition -> id, $submissionfile);
 
     $command = escapeshellcmd($CFG -> dirroot . '/mod/competition/validate/' . $competition->validatescript . ' ' . implode(' ', $params));
-    var_dump($command);
+    
     $output = array('Error parsing submission');
     $exitcode = 0;
     exec($command . ' 2>&1 ', $output, $exitcode);
@@ -232,14 +232,12 @@ function create_forum($name, $section, $course) {
     global $DB, $CFG;
     
     $add = 'forum';
-
     $course = $DB->get_record('course', array('id'=>$course), '*', MUST_EXIST);
-
     list($module, $context, $cw) = can_add_moduleinfo($course, $add, $section);
-
+    
     $data = new stdClass();
-    $data->section          = $section;  // The section number itself - relative!!! (section column in course_sections)
-    $data->visible          = $cw->visible;
+    $data->section          = $section;
+    $data->visible          = 1;
     $data->course           = $course->id;
     $data->module           = $module->id;
     $data->modulename       = $module->name;
@@ -250,15 +248,16 @@ function create_forum($name, $section, $course) {
     $data->instance         = '';
     $data->coursemodule     = '';
     $data->add              = $add;
-    $data->return           = 0; //must be false if this is an add, go back to course view on cancel
+    $data->return           = 0;
     $data->name             = $name;
     $data->cmidnumber       = $module->id;
-    $data->type             = 'mod';
+    $data->type             = 'general';
     $data->forcesubscribe   = 0;
     
     $draftid_editor = file_get_submitted_draft_itemid('introeditor');
     $data->introeditor = array('text'=>'', 'format'=>FORMAT_HTML, 'itemid'=>$draftid_editor); // TODO: add better default
     
+    $DB->set_field('course_sections', 'visible', '1', array('id' => $section));
     $forum = add_moduleinfo($data, $course);
     return $forum->coursemodule;
 }

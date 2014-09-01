@@ -1,4 +1,4 @@
-#!/home/vinnie/anaconda3/envs/bas/bin/python
+#!/usr/bin/python3
 
 import sys
 import numpy as np

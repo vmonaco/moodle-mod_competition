@@ -72,7 +72,7 @@ if (COMPETITION_STATE_BEFORE_OPEN == $state) {
         echo "<hr><div class='mod_competition_timer numberTypeWrapper'><p>";
         echo "You can make up to $submissionsleft submission$s right now";
         echo "</p></div><hr>";
-    } else if (COMPETITION_STATE_OPEN == $state) {
+    } else {
         $PAGE -> requires -> js('/mod/competition/scripts/jquery-1.10.2.min.js');
         $PAGE -> requires -> js('/mod/competition/scripts/timer.js');
         echo create_timer($timeleft, 'Until you can make another submission');
