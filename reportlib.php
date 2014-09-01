@@ -135,7 +135,7 @@ class competition_leaderboard_report {
         $scoreheader -> colspan = '100%';
         $scoreheader -> scope = 'col';
         $scoreheader -> header = true;
-        $scoreheader -> id = 'idheader';
+        $scoreheader -> id = 'scoreheader';
         $scoreheader -> text = get_string('scores', 'competition');
         $headerrow -> cells[] = $scoreheader;
         
@@ -352,7 +352,7 @@ class competition_submission_report {
         $scoreheader -> colspan = '100%';
         $scoreheader -> scope = 'col';
         $scoreheader -> header = true;
-        $scoreheader -> id = 'idheader';
+        $scoreheader -> id = 'scoreheader';
         $scoreheader -> text = get_string('scores', 'competition');
         $headerrow -> cells[] = $scoreheader;
         
