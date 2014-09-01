@@ -165,7 +165,7 @@ class competition_leaderboard_report {
             $scoreheader -> attributes['class'] = 'header';
             $scoreheader -> scope = 'col';
             $scoreheader -> header = true;
-            $scoreheader -> id = 'scoreheader';
+            $scoreheader -> id = 'scorenameheader';
             $scoreheader -> text = ucwords($scorename);
             $headerrow -> cells[] = $scoreheader;
         }
@@ -399,7 +399,7 @@ class competition_submission_report {
             $scoreheader -> attributes['class'] = 'header';
             $scoreheader -> scope = 'col';
             $scoreheader -> header = true;
-            $scoreheader -> id = 'scoreheader';
+            $scoreheader -> id = 'scorenameheader';
             $scoreheader -> text = ucwords($scorename);
             $headerrow -> cells[] = $scoreheader;
         }
