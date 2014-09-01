@@ -33,6 +33,7 @@ $string['weeks'] = 'weeks';
 $string['years'] = 'years';
 $string['months'] = 'months';
 $string['minutes'] = 'minutes';
+$string['minutesx'] = '{$a} minutes';
 $string['seconds'] = 'seconds';
 
 $string['options'] = "Options";

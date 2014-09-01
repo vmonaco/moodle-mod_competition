@@ -13,6 +13,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once ($CFG -> dirroot . '/mod/competition/locallib.php');
 
+define('COMPETITION_INTERVAL_15MINS', 60 * 15);
 define('COMPETITION_INTERVAL_HOUR', 60 * 60);
 define('COMPETITION_INTERVAL_DAY', 60 * 60 * 24);
 define('COMPETITION_INTERVAL_WEEK', 60 * 60 * 24 * 7);
@@ -38,7 +39,7 @@ $COMPETITION_SHOWSCORE = array(COMPETITION_SHOWSCORE_ALWAYS => get_string('shows
 
 /** @global array $COMPETITION_INTERVAL */
 global $COMPETITION_INTERVAL;
-$COMPETITION_INTERVAL = array(COMPETITION_INTERVAL_HOUR => get_string('hour', 'competition'), COMPETITION_INTERVAL_DAY => get_string('day', 'competition'), COMPETITION_INTERVAL_WEEK => get_string('week', 'competition'));
+$COMPETITION_INTERVAL = array(COMPETITION_INTERVAL_15MINS => get_string('minutesx', 'competition', 15), COMPETITION_INTERVAL_HOUR => get_string('hour', 'competition'), COMPETITION_INTERVAL_DAY => get_string('day', 'competition'), COMPETITION_INTERVAL_WEEK => get_string('week', 'competition'));
 
 global $COMPETITION_TIME_UNITS;
 $COMPETITION_TIME_UNITS = array(get_string('years', 'competition') => 31536000, get_string('months', 'competition') => 2592000, get_string('weeks', 'competition') => 604800, get_string('days', 'competition') => 86400, get_string('hours', 'competition') => 3600, get_string('minutes', 'competition') => 60, get_string('seconds', 'competition') => 1);
