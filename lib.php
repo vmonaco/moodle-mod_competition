@@ -245,7 +245,7 @@ function competition_pluginfile($course, $cm, $context, $filearea, array $args, 
 	$fullpath = "/$context->id/mod_competition/$filearea/$itemid/$relativepath";
 	require_login($course, true, $cm);
 
-	if (!has_capability('mod/competition:download', context_module::instance($cm -> id))) {
+	if (!has_capability('mod/competition:submit', context_module::instance($cm -> id))) {
 		print_error('nodownloadaccess', 'competition');
 	}
 
