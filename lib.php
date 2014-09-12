@@ -54,9 +54,9 @@ function competition_cron() {
 	$now = time();
 	$competitions = $DB -> get_records_sql('SELECT * FROM {competition}
          WHERE (timeopen=0 AND timeclose=0)
-         OR (timeopen=0 AND timeclose<=?)
-         OR (timeopen>=? AND timeclose=0)
-         OR (timeopen>=? AND timeclose<=?)', array($now, $now, $now, $now));
+         OR (timeopen=0 AND timeclose>=?)
+         OR (timeopen<=? AND timeclose=0)
+         OR (timeopen<=? AND timeclose>=?)', array($now, $now, $now, $now));
 	// Rescore active competitions
 	foreach ($competitions as $id => $competition) {
 		if (($now - $competition -> timescored) > $competition -> scoringinterval) {
