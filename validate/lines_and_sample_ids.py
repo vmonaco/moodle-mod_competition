@@ -36,8 +36,6 @@ try:
 except Exception as e:
     sys.exit('Unable to parse submission: {}'.format(e))
 
-import IPython
-IPython.embed()
 # Match the number of lines, including the header
 if len(template) != len(submission):
     sys.exit('Your file contains {} lines. Submissions should contain {} lines including the header'.format(len(submission), len(template)+1))
