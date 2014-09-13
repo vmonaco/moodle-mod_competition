@@ -59,7 +59,7 @@ function competition_cron() {
          OR (timeopen<=? AND timeclose>=?)', array($now, $now, $now, $now));
 	// Rescore active competitions
 	foreach ($competitions as $id => $competition) {
-		if (($now - $competition -> timescored) > $competition -> scoringinterval) {
+		if (($now - $competition -> timescored) >= $competition -> scoringinterval) {
 			echo 'Rescoring competition ', $competition -> id;
 			rescore_competition($competition);
 		} else {
