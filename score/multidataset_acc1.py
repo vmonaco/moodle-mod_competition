@@ -18,9 +18,9 @@ _DATASET_USAGE = float(int(sys.argv[7])/100)
 _SELECT_SCORING_TEMPLATE = "SELECT scoringtemplate FROM {}competition WHERE `id`=%s".format(_TABLE_PREFIX)
 _SELECT_SUBMISSIONS = "SELECT id,userid,submission FROM {}competition_submission WHERE `compid`=%s".format(_TABLE_PREFIX)
 _SCORE_UPDATE = "UPDATE `{}competition_submission` SET `score`=%s, `timescored`=%s WHERE `id`=%s".format(_TABLE_PREFIX)
+_LEADERBOARD_CLEAR = "DELETE FROM {}competition_leaderboard wWHERE `compid`=%s".format(_TABLE_PREFIX)
 _LEADERBOARD_UPDATE = \
-"""INSERT INTO `{}competition_leaderboard` (`compid`,`userid`,`rank`,`score`) VALUES(%s, %s, %s, %s)
-ON DUPLICATE KEY UPDATE `rank`=%s, `score`=%s""".format(_TABLE_PREFIX)
+"""INSERT INTO `{}competition_leaderboard` (`compid`,`userid`,`rank`,`score`) VALUES(%s, %s, %s, %s)""".format(_TABLE_PREFIX)
 
 global conn
 conn = None
@@ -94,7 +94,7 @@ def ranks(scores):
 def main():
     template = scoring_template(_COMPETITION)
     scores = pd.concat({(id,userid): ACC1(template, s, _DATASET_USAGE) 
-                        for id,userid,s in select_submissions(_COMPETITION)}, names=['id','userid']).unstack(level=2) 
+                        for id,userid,s in select_submissions(_COMPETITION)}, names=['id','userid']).unstack(level=2)
     
     # Update submission scores
     _open_db()
@@ -103,13 +103,16 @@ def main():
     _close_db()
     
     # Get the top scores within each user and rerank the leaderboard
-    scores = scores.groupby(level='userid').apply(lambda x: x.max())
+    scores = scores.groupby(level='userid').apply(lambda x: x.apply(lambda y: y.max()))
     leaderboard = ranks(scores)
+    
+    # Clear the leaderboard
+    cur.execute(_LEADERBOARD_CLEAR, (_COMPETITION,))
     
     # Update the leaderboard
     _open_db()
     for (userid,rank),s in leaderboard.iterrows():
-        cur.execute(_LEADERBOARD_UPDATE, (_COMPETITION, userid, rank, s.to_json(double_precision=4), rank, s.to_json(double_precision=4)))
+        cur.execute(_LEADERBOARD_UPDATE, (_COMPETITION, userid, rank, s.to_json(double_precision=4)))
     _close_db()
     
 main()

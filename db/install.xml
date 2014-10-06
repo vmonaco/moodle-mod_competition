@@ -80,8 +80,7 @@
                 <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" />
             </KEYS>
             <INDEXES>
-                <INDEX NAME="comp-user" UNIQUE="true" FIELDS="compid,userid" />
-                <INDEX NAME="comp-rank" UNIQUE="true" FIELDS="compid,rank" />
+                <INDEX NAME="comp-user" UNIQUE="true" FIELDS="compid,userid,rank" />
             </INDEXES>
         </TABLE>
         
