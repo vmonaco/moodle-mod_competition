@@ -107,7 +107,9 @@ def main():
     leaderboard = ranks(scores)
     
     # Clear the leaderboard
+    _open_db()
     cur.execute(_LEADERBOARD_CLEAR, (_COMPETITION,))
+    _close_db()
     
     # Update the leaderboard
     _open_db()
