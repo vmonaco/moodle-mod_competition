@@ -18,7 +18,7 @@ _DATASET_USAGE = float(int(sys.argv[7])/100)
 _SELECT_SCORING_TEMPLATE = "SELECT scoringtemplate FROM {}competition WHERE `id`=%s".format(_TABLE_PREFIX)
 _SELECT_SUBMISSIONS = "SELECT id,userid,submission FROM {}competition_submission WHERE `compid`=%s".format(_TABLE_PREFIX)
 _SCORE_UPDATE = "UPDATE `{}competition_submission` SET `score`=%s, `timescored`=%s WHERE `id`=%s".format(_TABLE_PREFIX)
-_LEADERBOARD_CLEAR = "DELETE FROM {}competition_leaderboard wWHERE `compid`=%s".format(_TABLE_PREFIX)
+_LEADERBOARD_CLEAR = "DELETE FROM {}competition_leaderboard WHERE `compid`=%s".format(_TABLE_PREFIX)
 _LEADERBOARD_UPDATE = \
 """INSERT INTO `{}competition_leaderboard` (`compid`,`userid`,`rank`,`score`) VALUES(%s, %s, %s, %s)""".format(_TABLE_PREFIX)
 
