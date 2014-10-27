@@ -40,6 +40,12 @@ except Exception as e:
 if len(template) != len(submission):
     sys.exit('Your file contains {} lines. Submissions should contain {} lines including the header'.format(len(submission), len(template)+1))
     
+if not 'user' in submission.columns:
+    sys.exit('Your submission must contain a "user" column')
+    
+if not 'sample' in submission.columns:
+    sys.exit('Your submission must contain a "sample" column')
+    
 if len(pd.merge(template, submission, on='sample', how='inner')) != len(template):
     sys.exit('Missing classifications for some samples')
     
